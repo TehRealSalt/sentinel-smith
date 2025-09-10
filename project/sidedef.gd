@@ -3,28 +3,20 @@ extends DoomEntity
 ## Represents a sidedef as it is in the UDMF specification.
 
 
-## Texture X offset. Affects all textures.
-var offsetx: int = 0
+## Offset for ALL textures on this side.
+var offset: Vector2 = Vector2.ZERO
 
 
-## Texture Y offset. Affects all textures.
-var offsety: int = 0
+## The upper sidedef part.
+var top_part: DoomSidedefPart
 
 
-## The texture path that represents a side part with no texture.
-const NO_TEXTURE = "-";
+## The lower sidedef part.
+var bottom_part: DoomSidedefPart
 
 
-## The upper texture name or path.
-var texturetop: String = NO_TEXTURE
-
-
-## The lower texture name or path.
-var texturebottom: String = NO_TEXTURE
-
-
-## The middle texture name or path.
-var texturemiddle: String = NO_TEXTURE
+## The middle sidedef part.
+var middle_part: DoomSidedefPart
 
 
 ## The pointer to the [DoomSector] that this line side is facing.

@@ -53,18 +53,12 @@ static func strip_comments(input: String) -> String:
 
 	return ret
 
-func _init(_data: Dictionary) -> void:
-	print("TODO: Fill from Dictionary")
-
 
 # Creates a [DoomMap] from a TEXTMAP [String].
 static func load_from_text(text: String) -> DoomMap:
 	text = strip_comments(text)
-	
 	var textmap := DoomTextmap.new(text)
-	var map := DoomMap.new(textmap.data)
-
-	return map
+	return DoomMap.new(textmap.data)
 
 
 static func load_from_wad(wad: WADFile) -> DoomMap:
@@ -101,3 +95,16 @@ static func load_from_wad(wad: WADFile) -> DoomMap:
 	print("Loaded map '%s'" % map.map_name)
 
 	return map
+
+
+var sectors: Array[DoomSector] = []
+var things: Array[DoomThing] = []
+
+func _init(data: Dictionary) -> void:
+	engine_namespace = data.namespace
+
+	for sector_def: Dictionary in data.sector:
+		sectors.push_back(DoomSector.new(sector_def))
+
+	for thing_def: Dictionary in data.thing:
+		things.push_back(DoomThing.new(thing_def))

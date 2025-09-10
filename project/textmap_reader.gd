@@ -200,7 +200,8 @@ func _try_block(block_identifier: String) -> Token:
 		if token.is_type([&"block_end"]):
 			var created_block := _pop_block()
 			var work_block := _get_working_block()
-			work_block[block_identifier] = created_block
+			var work_array: Array = work_block.get_or_add(block_identifier, [])
+			work_array.append(created_block)
 
 			assert(size == _block_stack.size())
 			return token

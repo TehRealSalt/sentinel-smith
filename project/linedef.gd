@@ -123,42 +123,23 @@ var repeatspecial: bool = false
 var special: int = 0
 
 
-## [member special]'s argument 0.
+## [member special]'s integer arguments.
 ##
-## In map formats without scripting, this should be equal to [member id].
-var arg0: int = 0
+## In any map formats without scripting,
+## [code]int_args[0][/code] should be equal to [member id].
+var int_args: Array[int]
 
 
-## [member special]'s argument 1.
-var arg1: int = 0
-
-
-## [member special]'s argument 2.
-var arg2: int = 0
-
-
-## [member special]'s argument 3.
-var arg3: int = 0
-
-
-## [member special]'s argument 4.
-var arg4: int = 0
-
-
-## Gets this line's script arguments as an array.
+## Gets this thing's script arguments as an array.
+## This 
 func get_args() -> Array:
-	return [arg0, arg1, arg2, arg3, arg4]
+	return int_args
 
 
-## Sets this line's script arguments from an array.
+## Sets this thing's script arguments from an array.
 func set_args(v: Array) -> void:
 	assert(v.size() == 5)
-	arg0 = v[0]
-	arg1 = v[1]
-	arg2 = v[2]
-	arg3 = v[3]
-	arg4 = v[4]
-
+	int_args = v
 
 # Sidedef pointers
 
