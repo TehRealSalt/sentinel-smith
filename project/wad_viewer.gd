@@ -14,7 +14,7 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	current_wad = wad
 	update_tree()
 
-	var map := DoomMap.load_from_wad(current_wad)
+	current_map = DoomMap.load_from_wad(current_wad)
 
 
 func update_tree() -> void:
