@@ -1,0 +1,51 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7xihjmeuu1mu"]
+
+[ext_resource type="Script" uid="uid://7wn01vurbnfw" path="res://wad_viewer.gd" id="1_su4ka"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_su4ka")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+
+[node name="OpenWADButton" type="Button" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Open WAD..."
+
+[node name="WADTree" type="Tree" parent="MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="OpenWADDialog" type="FileDialog" parent="."]
+unique_name_in_owner = true
+title = "Open a File"
+initial_position = 1
+size = Vector2i(960, 600)
+popup_window = true
+ok_button_text = "Open"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.wad;Doom WAD files")
+
+[connection signal="pressed" from="MarginContainer/VBoxContainer/OpenWADButton" to="." method="_on_open_wad_button_pressed"]
+[connection signal="file_selected" from="OpenWADDialog" to="." method="_on_file_dialog_file_selected"]
