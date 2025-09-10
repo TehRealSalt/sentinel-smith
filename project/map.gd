@@ -16,6 +16,7 @@ const _CODE_COMMENT_MULTI := 0x2a
 const _CODE_NEW_LINE := 0x0a
 
 ## Remove C-style comments from a String.
+## TODO: Maybe this should be the job of [DoomTextmap]
 static func strip_comments(input: String) -> String:
 	var ret: String = ""
 
@@ -52,31 +53,17 @@ static func strip_comments(input: String) -> String:
 
 	return ret
 
-
-const _SYNTAX_INT := '[+-]?[1-9]+[0-9]*|0[0-9]+|0x[0-9A-Fa-f]+'
-const _SYNTAX_FLOAT := '[+-]?[0-9]+[.0-9]*([eE][+-]?[0-9]+)?'
-const _SYNTAX_STR := '"([^"\\]*(\\.[^"\\]*)*)"'
-const _SYNTAX_KEYWORD := '[^{}();"\'\n\t ]+'
-
-const _SYNTAX_IDENTIFIER := '[A-Za-z_]+[A-Za-z0-9_]*'
-
-static func _combined_syntax(inputs: PackedStringArray) -> String:
-	return ("(" + (")|(".join(inputs)) + ")")
-
-var exp_int := RegEx.create_from_string(_SYNTAX_INT)
-var exp_float := RegEx.create_from_string(_SYNTAX_FLOAT)
-var exp_str := RegEx.create_from_string(_SYNTAX_STR)
-var exp_keyword := RegEx.create_from_string(_SYNTAX_KEYWORD)
-var exp_value := RegEx.create_from_string(_combined_syntax([_SYNTAX_INT, _SYNTAX_FLOAT, _SYNTAX_STR, _SYNTAX_KEYWORD]))
-var exp_identifier := RegEx.create_from_string(_SYNTAX_IDENTIFIER)
-var exp_equals := RegEx.create_from_string("={1}")
-var exp_semicolon := RegEx.create_from_string(";{1}")
+func _init(_data: Dictionary) -> void:
+	print("TODO: Fill from Dictionary")
 
 
 # Creates a [DoomMap] from a TEXTMAP [String].
-static func load_from_text(textmap: String) -> DoomMap:
-	textmap = strip_comments(textmap)
-	var map := DoomMap.new()
+static func load_from_text(text: String) -> DoomMap:
+	text = strip_comments(text)
+	
+	var textmap := DoomTextmap.new(text)
+	var map := DoomMap.new(textmap.data)
+
 	return map
 
 

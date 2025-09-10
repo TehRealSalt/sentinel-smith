@@ -1,0 +1,3 @@
+# Ignore UDB files. We may want to cross-reference behavior.
+*.dbs
+*.autosave*
