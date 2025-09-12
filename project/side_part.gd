@@ -1,13 +1,29 @@
 class_name DoomSidedefPart
-extends RefCounted
+extends DoomEntityMirror
 ## Represents a [DoomSidedef]'s upper, middle, and lower "parts".
-## This isn't a thing in the UDMF spec, but it reduce code duplication
-## for more complicated map formats.
+
+var which_part: DoomSidedef.Parts
 
 
-## The texture path that represents a side part with no texture.
-const NO_TEXTURE = "-";
+func _mirrored_fields() -> Dictionary[StringName, StringName]:
+	match which_part:
+		DoomSidedef.Parts.TOP:
+			return {
+				&"texture": &"texturetop",
+			}
+		DoomSidedef.Parts.BOTTOM:
+			return {
+				&"texture": &"texturebottom",
+			}
+		DoomSidedef.Parts.MIDDLE:
+			return {
+				&"texture": &"texturemiddle",
+			}
+		_:
+			assert(false)
+			return {}
 
 
-## This side part's texture name or path.
-var texture: String = NO_TEXTURE
+func _init(side: DoomSidedef, which: DoomSidedef.Parts) -> void:
+	super(side)
+	which_part = which

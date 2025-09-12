@@ -2,29 +2,33 @@ class_name DoomSidedef
 extends DoomEntity
 ## Represents a sidedef as it is in the UDMF specification.
 
+## The texture path that represents a side part with no texture.
+const NO_TEXTURE = "-";
 
-## Offset for ALL textures on this side.
-var offset: Vector2 = Vector2.ZERO
+
+enum Parts
+{
+	TOP,
+	BOTTOM,
+	MIDDLE,
+}
 
 
 ## The upper sidedef part.
-var top_part: DoomSidedefPart
+var parts: Dictionary[Parts, DoomSidedefPart] = {
+	Parts.TOP: DoomSidedefPart.new(self, Parts.TOP),
+	Parts.BOTTOM: DoomSidedefPart.new(self, Parts.BOTTOM),
+	Parts.MIDDLE: DoomSidedefPart.new(self, Parts.MIDDLE),
+}
 
 
-## The lower sidedef part.
-var bottom_part: DoomSidedefPart
-
-
-## The middle sidedef part.
-var middle_part: DoomSidedefPart
-
-
-## The pointer to the [DoomSector] that this line side is facing.
-var sector: DoomSector
-
-
-func _assert() -> bool:
-	if sector == null:
-		return false
-
-	return super()
+func _get_field_defaults() -> Dictionary[StringName, Variant]:
+	return {
+		&"offsetx": 0,
+		&"offsety": 0,
+		&"texturetop": NO_TEXTURE,
+		&"texturebottom": NO_TEXTURE,
+		&"texturemiddle": NO_TEXTURE,
+		&"sector": null,
+		&"comment": "",
+	}

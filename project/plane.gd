@@ -1,11 +1,23 @@
 class_name DoomSectorPlane
-extends RefCounted
-## Represents a [DoomSector]'s floor and ceiling planes.
-## This isn't a thing in the UDMF spec, but it reduce code duplication
-## for more complicated map formats.
+extends DoomEntityMirror
+## Represents a mirror for [DoomSector]'s floor and ceiling planes.
 
-## The plane's vertical coordinate.
-var height: int = 0
+var is_ceiling := false
 
-## The plane's texture name or path.
-var texture: String
+
+func _mirrored_fields() -> Dictionary[StringName, StringName]:
+	if is_ceiling:
+		return {
+			&"height": &"heightceiling",
+			&"texture": &"textureceiling",
+		}
+	else:
+		return {
+			&"height": &"heightfloor",
+			&"texture": &"textureceiling",
+		}
+
+
+func _init(sector: DoomSector, ceiling: bool) -> void:
+	super(sector)
+	is_ceiling = ceiling
