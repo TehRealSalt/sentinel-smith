@@ -1,5 +1,5 @@
 class_name DoomSidedefPart
-extends DoomEntity
+extends RefCounted
 ## Represents a [DoomSidedef]'s upper, middle, and lower "parts".
 ## This isn't a thing in the UDMF spec, but it reduce code duplication
 ## for more complicated map formats.

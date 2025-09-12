@@ -97,14 +97,26 @@ static func load_from_wad(wad: WADFile) -> DoomMap:
 	return map
 
 
+var vertices: Array[DoomVertex] = []
 var sectors: Array[DoomSector] = []
+var sides: Array[DoomSidedef] = []
+var lines: Array[DoomLinedef] = []
 var things: Array[DoomThing] = []
 
 func _init(data: Dictionary) -> void:
 	engine_namespace = data.namespace
 
+	for vertex_def: Dictionary in data.vertex:
+		vertices.push_back(DoomVertex.new(vertex_def))
+
 	for sector_def: Dictionary in data.sector:
 		sectors.push_back(DoomSector.new(sector_def))
+
+	for side_def: Dictionary in data.sidedef:
+		sides.push_back(DoomSidedef.new(side_def))
+
+	for line_def: Dictionary in data.linedef:
+		lines.push_back(DoomLinedef.new(line_def))
 
 	for thing_def: Dictionary in data.thing:
 		things.push_back(DoomThing.new(thing_def))

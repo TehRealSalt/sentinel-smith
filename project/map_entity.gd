@@ -12,10 +12,14 @@ var comment: String = ""
 ## Container for any fields that do not have any built-in handling for.
 ## This can include "user_" fields, and any fields that aren't supported yet.
 ## Ensures that these are still saved back into the map file.
-var extra_fields: Dictionary[StringName, Variant] = {}
+var extra_fields: Dictionary[String, Variant] = {}
 
 
 ## Virtual function which asserts if this map entity is valid.
 ## This should be reserved for "crash"-level importance failures.
 func _assert() -> bool:
 	return true
+
+
+func _init(data: Dictionary) -> void:
+	comment = data.comment
