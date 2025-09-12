@@ -3,12 +3,12 @@ extends DoomEntity
 ## Represents a vertex as it is in the UDMF specification.
 
 
-func _get_entity_identifier() -> StringName:
+func _entity_identifier() -> StringName:
 	return &"vertex"
 
 
-func _get_field_defaults() -> Dictionary[StringName, Variant]:
+func _entity_fields() -> Dictionary[StringName, EntityField]:
 	return {
-		&"x": null,
-		&"y": null,
+		&"x": EntityField.new(TYPE_FLOAT, null),
+		&"y": EntityField.new(TYPE_FLOAT, null),
 	}

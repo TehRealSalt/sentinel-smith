@@ -33,6 +33,22 @@ var lines: Array[DoomLinedef] = []
 var things: Array[DoomThing] = []
 
 
+## A look-up table for every kind of [DoomEntity] [Script],
+## to its corresponding [Array].
+var entity_type_to_array: Dictionary[Script, Array] = {
+	DoomVertex: vertices,
+	DoomSector: sectors,
+	DoomSidedef: sides,
+	DoomLinedef: lines,
+	DoomThing: things,
+}
+
+
+## Gets a reference to a [DoomEntity] from its index.
+func get_entity_pointer(type: Script, index: int) -> DoomEntity:
+	return entity_type_to_array[type].get(index)
+
+
 const _CODE_COMMENT := 0x2f
 const _CODE_COMMENT_MULTI := 0x2a
 const _CODE_NEW_LINE := 0x0a
@@ -122,6 +138,7 @@ static func load_from_wad(wad: WADFile) -> DoomMap:
 
 func _to_string() -> String:
 	var ret: String = ""
+
 	ret += "namespace = %s;" % engine_namespace
 	for line in lines:
 		ret += "\n%s" % str(line)
@@ -141,16 +158,16 @@ func _init(data: Dictionary) -> void:
 	engine_namespace = data.namespace
 
 	for vertex_def: Dictionary in data.vertex:
-		vertices.push_back(DoomVertex.new(vertex_def))
+		vertices.push_back(DoomVertex.new(self, vertex_def))
 
 	for sector_def: Dictionary in data.sector:
-		sectors.push_back(DoomSector.new(sector_def))
+		sectors.push_back(DoomSector.new(self, sector_def))
 
 	for side_def: Dictionary in data.sidedef:
-		sides.push_back(DoomSidedef.new(side_def))
+		sides.push_back(DoomSidedef.new(self, side_def))
 
 	for line_def: Dictionary in data.linedef:
-		lines.push_back(DoomLinedef.new(line_def))
+		lines.push_back(DoomLinedef.new(self, line_def))
 
 	for thing_def: Dictionary in data.thing:
-		things.push_back(DoomThing.new(thing_def))
+		things.push_back(DoomThing.new(self, thing_def))

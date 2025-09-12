@@ -22,17 +22,17 @@ var parts: Dictionary[Parts, DoomSidedefPart] = {
 }
 
 
-func _get_entity_identifier() -> StringName:
+func _entity_identifier() -> StringName:
 	return &"sidedef"
 
 
-func _get_field_defaults() -> Dictionary[StringName, Variant]:
+func _entity_fields() -> Dictionary[StringName, EntityField]:
 	return {
-		&"offsetx": 0,
-		&"offsety": 0,
-		&"texturetop": NO_TEXTURE,
-		&"texturebottom": NO_TEXTURE,
-		&"texturemiddle": NO_TEXTURE,
-		&"sector": null,
-		&"comment": "",
+		&"offsetx": EntityField.new(TYPE_INT, 0),
+		&"offsety": EntityField.new(TYPE_INT, 0),
+		&"texturetop": EntityField.new(TYPE_STRING, NO_TEXTURE),
+		&"texturebottom": EntityField.new(TYPE_STRING, NO_TEXTURE),
+		&"texturemiddle": EntityField.new(TYPE_STRING, NO_TEXTURE),
+		&"sector": EntityField.new(DoomSector, null),
+		&"comment": EntityField.new(TYPE_STRING, ""),
 	}

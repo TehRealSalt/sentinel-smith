@@ -11,18 +11,18 @@ var floor_plane := DoomSectorPlane.new(self, false)
 var ceiling_plane := DoomSectorPlane.new(self, true)
 
 
-func _get_entity_identifier() -> StringName:
+func _entity_identifier() -> StringName:
 	return &"sector"
 
 
-func _get_field_defaults() -> Dictionary[StringName, Variant]:
+func _entity_fields() -> Dictionary[StringName, EntityField]:
 	return {
-		&"heightfloor": 0,
-		&"heightceiling": 0,
-		&"texturefloor": null,
-		&"textureceiling": null,
-		&"lightlevel": 160,
-		&"special": 0,
-		&"id": 0,
-		&"comment": "",
+		&"heightfloor": EntityField.new(TYPE_INT, 0),
+		&"heightceiling": EntityField.new(TYPE_INT, 0),
+		&"texturefloor": EntityField.new(TYPE_STRING, null),
+		&"textureceiling": EntityField.new(TYPE_STRING, null),
+		&"lightlevel": EntityField.new(TYPE_INT, 160),
+		&"special": EntityField.new(TYPE_INT, 0),
+		&"id": EntityField.new(TYPE_INT, 0),
+		&"comment": EntityField.new(TYPE_STRING, ""),
 	}
