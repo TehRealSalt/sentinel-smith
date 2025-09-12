@@ -3,9 +3,7 @@ extends Node
 ## A UDMF map "entity". This is the base type that all map data inherits from.
 
 
-## Container for any fields that do not have any built-in handling for.
-## This can include "user_" fields, and any fields that aren't supported yet.
-## Ensures that these are still saved back into the map file.
+## Container for all fields.
 var _raw_fields: Dictionary[StringName, Variant] = {}
 
 
@@ -15,10 +13,31 @@ func _assert() -> bool:
 	return true
 
 
-## Virtual function which describes each UDMF field and its default value.
+## Returns the name that this entity goes by in the UDMF spec.
+func _get_entity_identifier() -> StringName:
+	assert(false, "_get_entity_identifier was not overridden!")
+	return &""
+
+
+## Returns a description of each UDMF field and its default value.
 func _get_field_defaults() -> Dictionary[StringName, Variant]:
 	assert(false, "_get_field_defaults was not overridden!")
 	return {}
+
+
+func _to_string() -> String:
+	var defaults := _get_field_defaults()
+	var ret: String = ""
+
+	ret += _get_entity_identifier()
+	ret += "\n{"
+	for key: StringName in _raw_fields.keys():
+		var val: Variant = _raw_fields[key]
+		if val != defaults[key]:
+			ret += "\n\t%s = %s;" % [key, _raw_fields[key]]
+	ret += "\n}"
+
+	return ret
 
 
 func _init(data: Dictionary) -> void:

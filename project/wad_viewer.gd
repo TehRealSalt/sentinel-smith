@@ -2,6 +2,7 @@ extends Control
 
 @onready var open_wad_dialog := (%OpenWADDialog as FileDialog)
 @onready var wad_tree := (%WADTree as Tree)
+@onready var textmap_display := (%TextMap as RichTextLabel)
 
 var current_wad_name: String = "(null)"
 var current_wad: WADFile = null
@@ -15,6 +16,7 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	update_tree()
 
 	current_map = DoomMap.load_from_wad(current_wad)
+	textmap_display.text = str(current_map)
 
 
 func update_tree() -> void:

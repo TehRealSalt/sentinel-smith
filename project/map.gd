@@ -1,14 +1,36 @@
 class_name DoomMap
-extends Node
+extends RefCounted
 
 ## This map's name, as specified by the empty header lump.
 var map_name: String = ""
 
+
 ## Any extra lumps to save with the map.
 var extra_lumps: Array[WADFile.Lump] = []
 
+
 ## This map format's namespace.
-var engine_namespace: StringName = &"Doom"
+var engine_namespace: StringName = &"doom"
+
+
+## The list of [DoomVertex] associated with this map.
+var vertices: Array[DoomVertex] = []
+
+
+## The list of [DoomSector] associated with this map.
+var sectors: Array[DoomSector] = []
+
+
+## The list of [DoomSidedef] associated with this map.
+var sides: Array[DoomSidedef] = []
+
+
+## The list of [DoomLinedef] associated with this map.
+var lines: Array[DoomLinedef] = []
+
+
+## The list of [DoomThing] associated with this map.
+var things: Array[DoomThing] = []
 
 
 const _CODE_COMMENT := 0x2f
@@ -16,7 +38,7 @@ const _CODE_COMMENT_MULTI := 0x2a
 const _CODE_NEW_LINE := 0x0a
 
 ## Remove C-style comments from a String.
-## TODO: Maybe this should be the job of [DoomTextmap]
+## TODO: Maybe this should be the job of [DoomTextmap].
 static func strip_comments(input: String) -> String:
 	var ret: String = ""
 
@@ -61,6 +83,7 @@ static func load_from_text(text: String) -> DoomMap:
 	return DoomMap.new(textmap.data)
 
 
+# Creates a [DoomMap] from a [WADFile].
 static func load_from_wad(wad: WADFile) -> DoomMap:
 	assert(wad != null)
 
@@ -97,11 +120,22 @@ static func load_from_wad(wad: WADFile) -> DoomMap:
 	return map
 
 
-var vertices: Array[DoomVertex] = []
-var sectors: Array[DoomSector] = []
-var sides: Array[DoomSidedef] = []
-var lines: Array[DoomLinedef] = []
-var things: Array[DoomThing] = []
+func _to_string() -> String:
+	var ret: String = ""
+	ret += "namespace = %s;" % engine_namespace
+	for line in lines:
+		ret += "\n%s" % str(line)
+	for side in sides:
+		ret += "\n%s" % str(side)
+	for vertex in vertices:
+		ret += "\n%s" % str(vertex)
+	for sector in sectors:
+		ret += "\n%s" % str(sector)
+	for thing in things:
+		ret += "\n%s" % str(thing)
+
+	return ret
+
 
 func _init(data: Dictionary) -> void:
 	engine_namespace = data.namespace

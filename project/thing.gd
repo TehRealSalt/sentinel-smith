@@ -3,6 +3,11 @@ extends DoomEntity
 ## Represents a "thing" as it is in the UDMF specification.
 ## These are objects that are defined per configuration.
 
+
+func _get_entity_identifier() -> StringName:
+	return &"thing"
+
+
 func _get_field_defaults() -> Dictionary[StringName, Variant]:
 	return {
 		&"id": 0,

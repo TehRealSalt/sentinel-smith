@@ -2,6 +2,11 @@ class_name DoomLinedef
 extends DoomEntity
 ## Represents a linedef as it is in the UDMF specification.
 
+
+func _get_entity_identifier() -> StringName:
+	return &"linedef"
+
+
 func _get_field_defaults() -> Dictionary[StringName, Variant]:
 	return {
 		&"id": -1,

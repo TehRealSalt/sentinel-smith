@@ -11,6 +11,10 @@ var floor_plane := DoomSectorPlane.new(self, false)
 var ceiling_plane := DoomSectorPlane.new(self, true)
 
 
+func _get_entity_identifier() -> StringName:
+	return &"sector"
+
+
 func _get_field_defaults() -> Dictionary[StringName, Variant]:
 	return {
 		&"heightfloor": 0,

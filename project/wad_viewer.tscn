@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7xihjmeuu1mu"]
+[gd_scene load_steps=3 format=3 uid="uid://c7xihjmeuu1mu"]
 
 [ext_resource type="Script" uid="uid://7wn01vurbnfw" path="res://wad_viewer.gd" id="1_su4ka"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_su4ka"]
+font_size = 22
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -25,21 +28,39 @@ theme_override_constants/margin_bottom = 8
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-size_flags_horizontal = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(256, 0)
+[node name="WADContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 3
 
-[node name="OpenWADButton" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="OpenWADButton" type="Button" parent="MarginContainer/HBoxContainer/WADContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Open WAD..."
 
-[node name="WADTree" type="Tree" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="WADTree" type="Tree" parent="MarginContainer/HBoxContainer/WADContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+
+[node name="MapContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/MapContainer"]
+layout_mode = 2
+text = "TEXTMAP"
+label_settings = SubResource("LabelSettings_su4ka")
+horizontal_alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/HBoxContainer/MapContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TextMap" type="RichTextLabel" parent="MarginContainer/HBoxContainer/MapContainer/PanelContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No map loaded"
 
 [node name="OpenWADDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
@@ -52,5 +73,5 @@ file_mode = 0
 access = 2
 filters = PackedStringArray("*.wad;Doom WAD files")
 
-[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/OpenWADButton" to="." method="_on_open_wad_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/WADContainer/OpenWADButton" to="." method="_on_open_wad_button_pressed"]
 [connection signal="file_selected" from="OpenWADDialog" to="." method="_on_file_dialog_file_selected"]

@@ -7,9 +7,11 @@ extends RefCounted
 ## [DoomSectorPlane] simply mirrors several fields present on [DoomSector],
 ## which allows for holding a pointer to *just* the single plane's properties.
 
+
 var _mirroring: DoomEntity
 
 
+## Returns a description of all fields that are mirrored.
 func _mirrored_fields() -> Dictionary[StringName, StringName]:
 	assert(false, "_mirrored_fields was not overridden!")
 	return {}
