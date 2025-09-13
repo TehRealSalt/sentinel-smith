@@ -13,6 +13,11 @@ var extra_lumps: Array[WADFile.Lump] = []
 var engine_namespace: StringName = &"doom"
 
 
+## Map format version. For Ring Racers' UDMF,
+## should remain 0 for other ports.
+var format_version: int = 0
+
+
 ## The list of [DoomVertex] associated with this map.
 var vertices: Array[DoomVertex] = []
 
