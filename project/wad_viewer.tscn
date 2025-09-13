@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7xihjmeuu1mu"]
+[gd_scene load_steps=3 format=3 uid="uid://c7xihjmeuu1mu"]
 
 [ext_resource type="Script" uid="uid://7wn01vurbnfw" path="res://wad_viewer.gd" id="1_su4ka"]
+[ext_resource type="Script" uid="uid://cclah7s2ysgno" path="res://map_viewport.gd" id="2_au647"]
 
 [node name="MainUI" type="Control"]
 layout_mode = 3
@@ -64,9 +65,10 @@ unique_name_in_owner = true
 handle_input_locally = false
 size = Vector2i(1076, 800)
 render_target_update_mode = 4
+script = ExtResource("2_au647")
 
 [node name="Camera2D" type="Camera2D" parent="HBoxContainer/WADContainer/SubViewportContainer/SubViewport"]
-zoom = Vector2(0.1, -0.1)
+zoom = Vector2(1, -1)
 
 [node name="OpenWADDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true

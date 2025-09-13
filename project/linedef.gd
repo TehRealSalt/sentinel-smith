@@ -45,21 +45,35 @@ func _entity_fields() -> Dictionary[StringName, EntityField]:
 		&"comment": EntityField.new(TYPE_STRING, ""),
 	}
 
-var display: Line2D = null
+
+class DoomLine2D:
+	extends Node2D
+
+	var p1: Vector2
+	var p2: Vector2
+
+	func update(line: DoomLinedef) -> void:
+		var v1: DoomVertex = line.get(&"v1")
+		p1 = v1.vector()
+
+		var v2: DoomVertex = line.get(&"v2")
+		p2 = v2.vector()
+
+
+	func _draw() -> void:
+		draw_line(p1, p2, Color.LIGHT_CORAL, 10.0)
+
+
+var display: DoomLine2D = null
 
 
 func update_display() -> void:
 	if display == null:
-		display = Line2D.new()
+		display = DoomLine2D.new()
 		add_child(display)
-	else:
-		display.clear_points()
 
-	var v1: DoomVertex = get(&"v1")
-	display.add_point(v1.vector())
-
-	var v2: DoomVertex = get(&"v2")
-	display.add_point(v2.vector())
+	display.update(self)
+	display.queue_redraw()
 
 
 func _init(this_map: DoomMap, data: Dictionary) -> void:

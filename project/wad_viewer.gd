@@ -9,7 +9,12 @@ var current_wad: WADFile = null
 var current_map: DoomMap = null
 
 func change_wad(wad_file_name: String, wad: WADFile) -> void:
+	Input.set_default_cursor_shape(Input.CURSOR_WAIT)
 	assert(wad != null)
+
+	if current_map != null:
+		current_map.queue_free()
+		current_map = null
 
 	current_wad_name = wad_file_name
 	current_wad = wad
@@ -19,6 +24,7 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	textmap_display.text = str(current_map)
 
 	%SubViewport.add_child(current_map)
+	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 
 func update_tree() -> void:
@@ -43,8 +49,6 @@ func _on_open_wad_button_pressed() -> void:
 
 
 func _on_file_dialog_file_selected(path: String) -> void:
-	#open_wad_dialog.visible = false
-
 	var bytes := FileAccess.get_file_as_bytes(path)
 	var err := FileAccess.get_open_error()
 	if err:
@@ -56,5 +60,4 @@ func _on_file_dialog_file_selected(path: String) -> void:
 		print("Could not load file '%s' as a WAD" % path)
 		return
 
-	print("Success!")
 	change_wad(path.get_file(), wad)
