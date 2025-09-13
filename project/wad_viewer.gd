@@ -18,6 +18,8 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	current_map = DoomMap.load_from_wad(current_wad)
 	textmap_display.text = str(current_map)
 
+	%SubViewport.add_child(current_map)
+
 
 func update_tree() -> void:
 	wad_tree.clear()

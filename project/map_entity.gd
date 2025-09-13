@@ -1,5 +1,5 @@
 class_name DoomEntity
-extends RefCounted
+extends Node
 ## A UDMF map "entity". This is the base type that all map data inherits from.
 
 ## The [DoomMap] that we belong to.
@@ -48,7 +48,7 @@ func _get_property_list() -> Array[Dictionary]:
 	var fields := _entity_fields()
 	for key: StringName in fields.keys():
 		var prop: Dictionary = {}
-		prop.name = ("UDMF/udmf_%s" % key)
+		prop.name = key
 
 		var type: Variant = fields[key].type
 		if type is Object:
@@ -59,54 +59,47 @@ func _get_property_list() -> Array[Dictionary]:
 		else:
 			prop.type = type
 
+		ret.push_back(prop)
+
 	for key: StringName in _state_user.keys():
 		assert(not (key in _state))
 
 		var prop: Dictionary = {}
-		prop.name = ("UDMF user/udmf_%s" % key)
+		prop.name = key
 		prop.type = typeof(_state_user)
+
+		ret.push_back(prop)
 
 	return ret
 
 
 func _get(id: StringName) -> Variant:
-	if id.begins_with("udmf_"):
-		id = id.trim_prefix("udmf_")
+	if _state.has(id):
+		return _state[id]
 
-		if _state.has(id):
-			return _state[id]
-
-		return _state_user.get(id)
-
-	return null
+	return _state_user.get(id)
 
 
 func _set(id: StringName, value: Variant) -> bool:
-	print(id)
-	if id.begins_with("udmf_"):
-		id = id.trim_prefix("udmf_")
-
-		if _state.has(id):
-			var fields := _entity_fields()
-			var new_type := typeof(value)
-			var defined_type: Variant = fields[id].type
-			if defined_type is Object:
-				var defined_obj: Object = type_convert(defined_type, TYPE_OBJECT)
-				if new_type != TYPE_NIL:
-					assert(new_type == TYPE_OBJECT)
-					var obj: Object = type_convert(value, TYPE_OBJECT)
-					var script: Script = obj.get_script()
-					assert(script == (defined_obj as Script))
-			else:
-				assert(new_type == defined_type)
-			
-			_state[id] = value
-			return true
-
-		_state_user[id] = value
+	if _state.has(id):
+		var fields := _entity_fields()
+		var new_type := typeof(value)
+		var defined_type: Variant = fields[id].type
+		if defined_type is Object:
+			var defined_obj: Object = type_convert(defined_type, TYPE_OBJECT)
+			if new_type != TYPE_NIL:
+				assert(new_type == TYPE_OBJECT)
+				var obj: Object = type_convert(value, TYPE_OBJECT)
+				var script: Script = obj.get_script()
+				assert(script == (defined_obj as Script))
+		else:
+			assert(new_type == defined_type)
+		
+		_state[id] = value
 		return true
 
-	return false
+	_state_user[id] = value
+	return true
 
 
 func _to_string() -> String:
@@ -192,3 +185,5 @@ func _init(from_map: DoomMap, data: Dictionary) -> void:
 		if _state.has(id):
 			continue
 		_state_user[id] = data.get(id, null)
+
+	map.add_child(self)

@@ -44,3 +44,24 @@ func _entity_fields() -> Dictionary[StringName, EntityField]:
 		&"sideback": EntityField.new(DoomSidedef, -1),
 		&"comment": EntityField.new(TYPE_STRING, ""),
 	}
+
+var display: Line2D = null
+
+
+func update_display() -> void:
+	if display == null:
+		display = Line2D.new()
+		add_child(display)
+	else:
+		display.clear_points()
+
+	var v1: DoomVertex = get(&"v1")
+	display.add_point(v1.vector())
+
+	var v2: DoomVertex = get(&"v2")
+	display.add_point(v2.vector())
+
+
+func _init(this_map: DoomMap, data: Dictionary) -> void:
+	super(this_map, data)
+	update_display()

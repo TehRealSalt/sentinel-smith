@@ -12,3 +12,9 @@ func _entity_fields() -> Dictionary[StringName, EntityField]:
 		&"x": EntityField.new(TYPE_FLOAT, null),
 		&"y": EntityField.new(TYPE_FLOAT, null),
 	}
+
+
+func vector() -> Vector2:
+	var x: float = get(&"x")
+	var y: float = get(&"y")
+	return Vector2(x, y)

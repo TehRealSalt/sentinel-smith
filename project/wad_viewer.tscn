@@ -1,66 +1,72 @@
-[gd_scene load_steps=3 format=3 uid="uid://c7xihjmeuu1mu"]
+[gd_scene load_steps=2 format=3 uid="uid://c7xihjmeuu1mu"]
 
 [ext_resource type="Script" uid="uid://7wn01vurbnfw" path="res://wad_viewer.gd" id="1_su4ka"]
 
-[sub_resource type="LabelSettings" id="LabelSettings_su4ka"]
-font_size = 22
-
-[node name="Control" type="Control"]
+[node name="MainUI" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 script = ExtResource("1_su4ka")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
-[node name="WADContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="OpenWADButton" type="Button" parent="MarginContainer/HBoxContainer/WADContainer"]
+[node name="OpenWADButton" type="Button" parent="HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Open WAD..."
 
-[node name="WADTree" type="Tree" parent="MarginContainer/HBoxContainer/WADContainer"]
+[node name="WADTree" type="Tree" parent="HBoxContainer/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MapContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="Label" type="Label" parent="MarginContainer/HBoxContainer/MapContainer"]
-layout_mode = 2
-text = "TEXTMAP"
-label_settings = SubResource("LabelSettings_su4ka")
+size_flags_vertical = 1
+text = "Output"
 horizontal_alignment = 1
 
-[node name="PanelContainer" type="PanelContainer" parent="MarginContainer/HBoxContainer/MapContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="TextMap" type="RichTextLabel" parent="MarginContainer/HBoxContainer/MapContainer/PanelContainer"]
+[node name="TextMap" type="RichTextLabel" parent="HBoxContainer/VBoxContainer/PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "No map loaded"
+
+[node name="WADContainer" type="VBoxContainer" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="HBoxContainer/WADContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="HBoxContainer/WADContainer/SubViewportContainer"]
+unique_name_in_owner = true
+handle_input_locally = false
+size = Vector2i(1076, 800)
+render_target_update_mode = 4
+
+[node name="Camera2D" type="Camera2D" parent="HBoxContainer/WADContainer/SubViewportContainer/SubViewport"]
+zoom = Vector2(0.1, -0.1)
 
 [node name="OpenWADDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
@@ -73,5 +79,5 @@ file_mode = 0
 access = 2
 filters = PackedStringArray("*.wad;Doom WAD files")
 
-[connection signal="pressed" from="MarginContainer/HBoxContainer/WADContainer/OpenWADButton" to="." method="_on_open_wad_button_pressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/OpenWADButton" to="." method="_on_open_wad_button_pressed"]
 [connection signal="file_selected" from="OpenWADDialog" to="." method="_on_file_dialog_file_selected"]
