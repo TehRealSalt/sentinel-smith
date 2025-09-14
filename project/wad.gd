@@ -146,6 +146,7 @@ func _read_directory_entry(entry_bytes: PackedByteArray, all_bytes: PackedByteAr
 ## Returns a [PackedByteArray] converted into a [WADFile].
 ## Returns [code]null[/code] if the bytes were not a valid WAD.
 static func decode(bytes: PackedByteArray) -> WADFile:
+	PerfTiming.start(&'WADFile.decode')
 	var error := Error.FAILED
 	var wad := WADFile.new()
 	assert(wad != null)
@@ -158,6 +159,7 @@ static func decode(bytes: PackedByteArray) -> WADFile:
 	if error:
 		return null
 
+	PerfTiming.stop(&'WADFile.decode')
 	return wad
 
 

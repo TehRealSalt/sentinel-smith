@@ -21,9 +21,10 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	update_tree()
 
 	current_map = DoomMap.load_from_wad(current_wad)
-	textmap_display.text = str(current_map)
+	if current_map != null:
+		textmap_display.text = str(current_map)
+		%SubViewport.add_child(current_map)
 
-	%SubViewport.add_child(current_map)
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 

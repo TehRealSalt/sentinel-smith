@@ -1,271 +1,472 @@
 class_name DoomTextmap
 extends Resource
 
-# Some RegEx for the different tokens.
-# Ideally we'd use this as a full table but my head's spinning keeping
-# all of the state together so I'm going for caveman parsing instead
+# TODO: Replace these with ord in Godot 4.5
+# Whitespace
+const _NULL := 0x00 #ord('\0')
+const _NEW_LINE := 0x0a #ord('\n')
+const _TAB := 0x09 #ord('\t')
+const _SPACE := 0x20 #ord(' ')
 
-const PATTERNS: Dictionary[StringName, String] = {
-	&'string': r'"([^"\\]*(\\.[^"\\]*)*)"',
-	&'float': r'[+-]?[0-9]+\.[0-9]*([eE][+-]?[0-9]+)?',
-	&'int': r'[+-]?[1-9]+[0-9]*|[00-9]+|0x[0-9A-Fa-f]+',
-	&'bool': r'(true|false)',
-	&'identifier': r'[A-Za-z_]+[A-Za-z0-9_]*',
-	#&'comment': r'\/\/.*',
-	#&'comment_block_start': r'\/\*',
-	#&'comment_block_end': r'\*\/',
-	&'assign': r'=',
-	&'end': r'\;',
-	&'block_start': r'\{',
-	&'block_end': r'\}',
+# Key symbols
+const _EQUAL := 0x3d #ord('=')
+const _SEMICOLON := 0x3b #ord(';')
+const _OPEN := 0x28 #ord('(')
+const _CLOSE := 0x29 #ord(')')
+const _BRACE_OPEN := 0x7b #ord('{')
+const _BRACE_CLOSE := 0x7d #ord('}')
+const _QUOTE := 0x22 #ord('"')
+const _QUOTE_SINGLE := 0x27 #ord('\'')
+
+# Comments
+const _SLASH := 0x2f #ord('/')
+const _SLASH_BACK := 0x2f #ord('\\')
+const _STAR := 0x2a #ord('*')
+
+
+const BAD_WORD_CHARS: Array[int] = [
+	_BRACE_OPEN,
+	_BRACE_CLOSE,
+	_OPEN,
+	_CLOSE,
+	_SEMICOLON,
+	_QUOTE,
+	_QUOTE_SINGLE,
+	_NEW_LINE,
+	_TAB,
+	_SPACE,
+	_NULL
+]
+
+
+enum TokenType
+{
+	ERROR,
+
+	# Small characters
+	ASSIGN,
+	END,
+	BLOCK_START,
+	BLOCK_END,
+
+	# values
+	INT,
+	FLOAT,
+	STRING,
+
+	# keywords
+	TRUE,
+	FALSE,
+
+	# other
+	IDENTIFIER,
+	EOF,
 }
 
-const VALUES: Array[StringName] = [&'string', &'float', &'int', &'bool']
+
+const KEYWORDS: Dictionary[StringName, TokenType] = {
+	&'true': TokenType.TRUE,
+	&'false': TokenType.FALSE,
+}
 
 
 class Token:
-	# Just some helper functions on top of RegExMatch
-	var regex_match: RegExMatch = null
 	var line: int = 0
+	var type: TokenType = TokenType.ERROR
+	var lexeme: String = ''
+	var literal: Variant = null
 
-	func get_types() -> Array[StringName]:
-		if regex_match == null:
-			return [&"eof"]
+	func _init(p_type: TokenType, p_line: int, p_lexeme: String, p_literal: Variant = null) -> void:
+		type = p_type
+		line = p_line
+		lexeme = p_lexeme
+		literal = p_literal
 
-		var ret: Array[StringName] = []
-		for t: String in regex_match.names.keys():
-			ret.push_back(t)
 
+## A [Dictionary] representing the Textmap's output.
+var data: Dictionary[StringName, Variant] = {}
+
+
+class Scanner:
+	## All of the [class Token]s that were scanned.
+	var tokens: Array[Token] = []
+
+	## The [String] that this was derived from.
+	var source: String = ''
+
+	var _start: int = 0 # Scan start position
+	var _position: int = 0 # Scan current position
+	var _line_count: int = 0 # Scanned lines
+
+	func add_token(type: TokenType, literal: Variant = null) -> Token:
+		if type == TokenType.ERROR:
+			push_error("TEXTMAP scan failure, line %d: %s" % [_line_count, literal])
+
+		var lexeme := source.substr(_start, _position - _start)
+		var token: Token = Token.new(type, _line_count, lexeme, literal)
+		tokens.push_back(token)
+		return token
+
+
+	func at_end(distance: int = 0) -> bool:
+		return _position + distance >= source.length()
+
+
+	func advance(distance: int = 0) -> int:
+		var ret: int = source.unicode_at(_position)
+		_position += distance + 1
 		return ret
 
 
-	func is_type(allowed_types: Array[StringName]) -> bool:
-		var types: Array[StringName] = get_types()
-		for type: StringName in allowed_types:
-			if type in types:
-				return true
+	func matches(expected: int) -> bool:
+		if at_end():
+			return false
+
+		var ret: int = source.unicode_at(_position)
+		if ret != expected:
+			return false
+
+		_position += 1
+		return true
+
+
+	func peek(distance: int = 0) -> int:
+		if at_end(distance):
+			return _NULL
+
+		return source.unicode_at(_position + distance)
+
+
+	func skip_comment() -> void:
+		while (at_end() == false):
+			if peek() == _NEW_LINE:
+				break
+
+			advance()
+
+
+	func skip_comment_multiline() -> void:
+		while (at_end() == false):
+			if (peek(0) == _STAR and peek(1) == _SLASH):
+				advance(1)
+				break
+
+			advance()
+
+
+	func scan_string() -> Token:
+		while (at_end() == false):
+			var next := peek()
+			if (next == _QUOTE and source.unicode_at(_position) != _SLASH_BACK):
+				# Don't call advance here, we need to check for EOF
+				break
+
+			if next == _NEW_LINE:
+				_line_count += 1
+
+			advance()
+
+		if at_end():
+			return add_token(TokenType.ERROR, 'Got unterminated string')
+
+		# Skip closing quote
+		advance()
+
+		var str_without_quotes := source.substr(_start + 1, _position - _start - 2)
+		return add_token(TokenType.STRING, str_without_quotes)
+
+
+	func scan_word() -> Token:
+		while (at_end() == false):
+			var next := peek()
+			if next in BAD_WORD_CHARS:
+				break
+
+			advance()
+
+		var word := source.substr(_start, _position - _start)
+
+		# TODO: I think this is the right priority, but I haven't confirmed
+		if word.is_valid_hex_number(true):
+			return add_token(TokenType.INT, word.hex_to_int())
+		elif word.is_valid_int():
+			return add_token(TokenType.INT, word.to_int())
+		elif word.is_valid_float():
+			return add_token(TokenType.FLOAT, word.to_float())
+		elif word.is_valid_ascii_identifier():
+			if KEYWORDS.has(word):
+				return add_token(KEYWORDS[word])
+			return add_token(TokenType.IDENTIFIER, word)
+
+		return add_token(TokenType.ERROR, 'Invalid word "%s"' % word)
+
+
+	func scan_token() -> Token:
+		var c: int = advance()
+
+		match c:
+			_SPACE, _TAB:
+				return null
+			_NEW_LINE:
+				_line_count += 1
+				return null
+			_EQUAL:
+				return add_token(TokenType.ASSIGN, String.chr(c))
+			_SEMICOLON:
+				return add_token(TokenType.END, String.chr(c))
+			_BRACE_OPEN:
+				return add_token(TokenType.BLOCK_START, String.chr(c))
+			_BRACE_CLOSE:
+				return add_token(TokenType.BLOCK_END, String.chr(c))
+			_SLASH:
+				if matches(_SLASH):
+					skip_comment()
+					return null
+				elif matches(_STAR):
+					skip_comment_multiline()
+					return null
+			_QUOTE:
+				return scan_string()
+
+		if c in BAD_WORD_CHARS:
+			return add_token(TokenType.ERROR, 'Unexpected character "%s"' % String.chr(c))
+
+		return scan_word()
+
+
+	func scan() -> Array[Token]:
+		tokens.clear()
+		_start = 0
+		_position = 0
+		_line_count = 1
+
+		while (at_end() == false):
+			_start = _position
+			var token := scan_token()
+			if token:
+				if token.type == TokenType.ERROR:
+					return []
+				if token.type == TokenType.EOF:
+					return tokens
+
+		add_token(TokenType.EOF)
+		return tokens
+
+
+	func _init(p_source: String) -> void:
+		source = p_source
+
+
+class Parser:
+	## All of the [class Token]s to parse.
+	var tokens: Array[Token] = []
+
+	## All of the parsed data
+	var parsed: Dictionary[StringName, Variant] = {}
+
+	var _position: int = 0 # Current token index
+
+	var _in_block: StringName = &'' # Working on a block...
+	var _block: Dictionary[StringName, Variant] = {} # Current working block
+
+	var _error := false
+	func throw_error(msg: String, token: Token = null) -> void:
+		if _error:
+			return
+
+		var full_msg: String
+		if (token == null and at_end() == false):
+			token = tokens[_position]
+
+		if token != null:
+			full_msg = "TEXTMAP scan failure, line %d: %s" % [token.line, msg]
+		else:
+			full_msg = "TEXTMAP scan failure: %s" % msg
+
+		push_error(full_msg)
+		_error = true
+
+
+	func at_end(distance: int = 0) -> bool:
+		assert(distance >= 0)
+		if _position + distance >= tokens.size():
+			return true
+		var ret: Token = tokens[_position + distance]
+		return (ret.type == TokenType.EOF)
+
+
+	func advance(distance: int = 0) -> Token:
+		assert(distance >= 0)
+		var ret: Token = tokens[_position]
+		_position += distance + 1
+		return ret
+
+
+	func matches(expected_type: TokenType) -> bool:
+		var token: Token
+		if at_end():
+			token = tokens.back()
+		else:
+			token = tokens[_position]
+
+		if token.type != expected_type:
+			return false
+
+		_position += 1
+		return true
+
+
+	func peek(distance: int = 0) -> Token:
+		assert(distance >= 0)
+		if at_end(distance):
+			return tokens.back()
+
+		return tokens[_position + distance]
+
+
+	const VALUE_TOKENS: Array[TokenType] = [
+		TokenType.INT,
+		TokenType.FLOAT,
+		TokenType.STRING,
+		TokenType.TRUE,
+		TokenType.FALSE,
+	]
+
+	func assignment_expr() -> bool:
+		var identifier := advance()
+		if identifier.type != TokenType.IDENTIFIER:
+			throw_error('Expected identifier, got "%s"' % identifier.lexeme, identifier)
+			return false
+
+		var symbol := advance()
+		if symbol.type != TokenType.ASSIGN:
+			throw_error('Expected "=", got "%s"' % symbol.lexeme, symbol)
+			return false
+
+		var value := advance()
+		if not value.type in VALUE_TOKENS:
+			throw_error('Invalid value "%s"; expected [int/float/string/bool]' % value.lexeme, value)
+			return false
+
+		var bookend := advance()
+		if bookend.type != TokenType.END:
+			throw_error('Expected ";", got "%s"' % bookend.lexeme, bookend)
+			return false
+
+		var assign_to: Dictionary[StringName, Variant]
+		if _in_block.is_empty():
+			assign_to = parsed
+		else:
+			assign_to = _block
+
+		var name: StringName = identifier.literal
+		var literal: Variant = value.literal
+
+		if literal == null:
+			# Handle keywords
+			match value.type:
+				TokenType.TRUE:
+					literal = true
+				TokenType.FALSE:
+					literal = false
+				_:
+					throw_error('Invalid keyword "%s"' % value.lexeme, value)
+					return false
+
+		assign_to[name] = literal
+		return true
+
+
+	func expr_list() -> bool:
+		while (peek().type != TokenType.BLOCK_END):
+			if assignment_expr() == false:
+				throw_error('Invalid assignment expression')
+				return false
+
+		return true
+
+
+	func block() -> bool:
+		if not _in_block.is_empty():
+			throw_error('Tried to start block within a block')
+			return false
+
+		var identifier := advance()
+		if identifier.type != TokenType.IDENTIFIER:
+			throw_error('Expected identifier, got "%s"' % identifier.lexeme, identifier)
+			return false
+
+		var symbol := advance()
+		if symbol.type != TokenType.BLOCK_START:
+			throw_error('Expected "{", got "%s"' % symbol.lexeme, symbol)
+			return false
+
+		_in_block = identifier.lexeme
+
+		var result := expr_list()
+		if not result:
+			throw_error('Invalid block expressions')
+			return false
+
+		var bookend := advance()
+		if bookend.type != TokenType.BLOCK_END:
+			throw_error('Expected "}", got "%s"' % bookend.lexeme, bookend)
+			return false
+
+		var arr: Array = parsed.get_or_add(_in_block, [])
+		arr.push_back(_block)
+
+		_in_block = &''
+		_block = {}
+		return true
+
+
+	func global_expr() -> bool:
+		var symbol := peek(1)
+		match symbol.type:
+			TokenType.BLOCK_START:
+				return block()
+			TokenType.ASSIGN:
+				return assignment_expr()
 
 		return false
 
 
-	func get_value(type: StringName) -> String:
-		if regex_match == null:
-			return ""
+	func global_expr_list() -> bool:
+		while (at_end() == false):
+			if global_expr() == false:
+				throw_error('Invalid global expression')
+				return false
 
-		return regex_match.get_string(type)
-
-
-	func _init(from_match: RegExMatch, from_line: int) -> void:
-		regex_match = from_match
-		line = from_line
+		return true
 
 
-var tokens: Array[Token]
-var token_pos: int = 0
+	func translation_unit() -> Dictionary[StringName, Variant]:
+		parsed = {}
+		_position = 0
+
+		if global_expr_list() == false:
+			# Invalid, throw empty dictionary
+			throw_error('Failure')
+			return {}
+
+		return parsed
 
 
-var _rules: RegEx = null
-var _source: String = ""
-var _position: int = 0
+	func _init(p_tokens: Array[Token]) -> void:
+		tokens = p_tokens
 
-
-func _add_token() -> Token:
-	if _position >= _source.length():
-		return null
-
-	var result := _rules.search(_source, _position)
-	if result == null:
-		return null
-
-	var line_num := 1 + _source.count('\n', 0, result.get_start())
-	var token := Token.new(result, line_num)
-	tokens.push_back(token)
-
-	_position = result.get_end()
-	return token
-
-
-func _advance_token(allowed_types: Array[StringName]) -> Token:
-	var prev_line := 1
-	if tokens[token_pos]:
-		prev_line = tokens[token_pos].line
-
-	var ret: Token = null
-	if token_pos < tokens.size():
-		ret = tokens[token_pos]
-		token_pos += 1
-
-	if ret == null:
-		push_error("Line %d: Expected %s, got null" % [prev_line, allowed_types])
-		return null
-
-	if not ret.is_type(allowed_types):
-		push_error("Line %d: Expected %s, got %s" % [ret.line, allowed_types, ret.get_types()])
-		return null
-
-	return ret
-
-
-func text_to_str(input: String) -> String:
-	return input.trim_prefix('"').trim_suffix('"')
-
-
-func text_to_int(input: String) -> int:
-	if input.is_valid_hex_number(true):
-		return input.hex_to_int()
-
-	return input.to_int()
-
-
-func text_to_float(input: String) -> float:
-	assert(input.is_valid_float())
-	return input.to_float()
-
-
-func text_to_bool(input: String) -> bool:
-	assert(input == 'true' or input == 'false')
-	return (input == 'true')
-
-
-var _value_type_to_entry: Dictionary[StringName, Callable] = {
-	&'string': text_to_str,
-	&'float': text_to_float,
-	&'int': text_to_int,
-	&'bool': text_to_bool,
-}
-
-var _block_stack: Array[Dictionary] = []
-
-
-func _get_working_block() -> Dictionary:
-	assert(_block_stack.is_empty() == false)
-	return _block_stack.back()
-
-
-func _push_block() -> void:
-	_block_stack.push_back({})
-
-
-func _pop_block() -> Dictionary:
-	assert(_block_stack.is_empty() == false)
-	return _block_stack.pop_back()
-
-
-func _try_assignment_expr(identifier: String) -> Token:
-	# assignment_expr
-	var value_token := _advance_token(VALUES)
-	if value_token == null:
-		return null
-
-	for value_type: StringName in VALUES:
-		var value := value_token.get_value(value_type)
-		if value.is_empty():
-			continue
-
-		var entry_type: Callable = _value_type_to_entry[value_type]
-		var block := _get_working_block()
-		block[identifier] = entry_type.call(value)
-
-		var close_token := _advance_token([&"end"])
-		if close_token == null:
-			return null
-
-		return close_token
-
-	assert(false, "Invalid assignment value type?")
-	return null
-
-
-func _try_expr_list(identifier_token: Token) -> Token:
-	var identifier := identifier_token.get_value(&"identifier")
-	assert(identifier.is_empty() == false)
-
-	var symbol_token := _advance_token([&"assign"])
-	if symbol_token == null:
-		return null
-
-	return _try_assignment_expr(identifier)
-
-
-func _try_block(block_identifier: String) -> Token:
-	var size := _block_stack.size()
-	_push_block()
-
-	var token: Token = null
-	while true:
-		token = _advance_token([&"identifier", &"block_end"])
-		if token == null:
-			return null
-
-		if token.is_type([&"block_end"]):
-			var created_block := _pop_block()
-			var work_block := _get_working_block()
-			var work_array: Array = work_block.get_or_add(block_identifier, [])
-			work_array.append(created_block)
-
-			assert(size == _block_stack.size())
-			return token
-
-		token = _try_expr_list(token)
-		if token == null:
-			return null
-
-	return null
-
-
-func _try_global_expr(identifier_token: Token) -> Token:
-	# global_expr
-	var identifier := identifier_token.get_value(&"identifier")
-	assert(identifier.is_empty() == false)
-
-	var symbol_token := _advance_token([&"block_start", &"assign"])
-	if symbol_token == null:
-		return null
-
-	if symbol_token.is_type([&"assign"]):
-		return _try_assignment_expr(identifier)
-	elif symbol_token.is_type([&"block_start"]):
-		return _try_block(identifier)
-	else:
-		assert(false, "Invalid expression type?")
-		return null
-
-
-var data: Dictionary = {}
 
 func _init(from: String) -> void:
-	data = {}
+	PerfTiming.start(&'TEXTMAP.scan')
+	var scanner := Scanner.new(from)
+	var tokens := scanner.scan()
+	PerfTiming.stop(&'TEXTMAP.scan')
 
-	_source = from
+	if tokens.is_empty():
+		return
 
-	var rule_parts: PackedStringArray = []
-	for pattern: StringName in PATTERNS.keys():
-		rule_parts.push_back(r'(?<%s>%s)' % [pattern, PATTERNS[pattern]])
-	_rules = RegEx.create_from_string('|'.join(rule_parts))
-
-	while (_add_token()):
-		pass
-
-	var file_lines := 1 + _source.count('\n')
-	var eof_token := Token.new(null, file_lines)
-	tokens.push_back(eof_token)
-
-	# translation_unit
-	_push_block()
-
-	var token: Token = null
-	while true:
-		# global_expr_list
-		token = _advance_token([&"identifier", &"eof"])
-		if token == null:
-			return
-
-		if token.is_type([&"eof"]):
-			break
-
-		token = _try_global_expr(token)
-		if token == null:
-			return
-
-	assert(_block_stack.size() == 1)
-	data = _pop_block()
+	PerfTiming.start(&'TEXTMAP.parse')
+	var parser := Parser.new(tokens)
+	data = parser.translation_unit()
+	PerfTiming.stop(&'TEXTMAP.parse')

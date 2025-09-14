@@ -15,12 +15,13 @@ var zoom_level: int = 1:
 		zoom_level = clampi(v, 0, ZOOM_LEVELS.size() - 1)
 
 		var camera := get_camera_2d()
-		var zoom := ZOOM_LEVELS[zoom_level]
+		var zoom := ZOOM_LEVELS[zoom_level] * 0.25 # 0.25 is possibly temp
 		camera.zoom = Vector2(zoom, -zoom) # Doom Y coordinate is flipped
 
 
 func zoom_2d(zoom_offset: int = 0) -> void:
 	var camera := get_camera_2d()
+	# TODO: this position is definitely wrong
 	camera.global_position = camera.get_global_mouse_position()
 	zoom_level += zoom_offset
 

@@ -18,6 +18,10 @@ config/features=PackedStringArray("4.4", "GL Compatibility")
 run/low_processor_mode=true
 config/icon="res://icon.svg"
 
+[autoload]
+
+PerfTiming="*res://perf_timing.gd"
+
 [debug]
 
 gdscript/warnings/unassigned_variable=2
