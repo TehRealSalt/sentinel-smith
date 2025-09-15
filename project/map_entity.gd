@@ -104,10 +104,10 @@ func _set(id: StringName, value: Variant) -> bool:
 
 func _to_string() -> String:
 	var fields := _entity_fields()
-	var ret: String = ""
+	var ret: PackedStringArray = []
 
-	ret += _entity_identifier()
-	ret += "\n{"
+	ret.push_back(_entity_identifier())
+	ret.push_back("{")
 
 	for key: StringName in _state.keys():
 		var existing_field := fields[key]
@@ -127,7 +127,7 @@ func _to_string() -> String:
 
 		if (existing_field == null
 		or val != existing_field.default):
-			ret += "\n\t%s = %s;" % [key, val]
+			ret.push_back("\t%s = %s;" % [key, val])
 
 	for key: StringName in _state_user.keys():
 		var val: Variant = _state_user[key]
@@ -138,10 +138,10 @@ func _to_string() -> String:
 		if typeof(val) == TYPE_STRING:
 			val = '"%s"' % val # Give it double quotes
 
-		ret += "\n\t%s = %s;" % [key, val]
+		ret.push_back("\t%s = %s;" % [key, val])
 
-	ret += "\n}"
-	return ret
+	ret.push_back("}")
+	return '\n'.join(ret)
 
 
 func _init(from_map: DoomMap, data: Dictionary) -> void:

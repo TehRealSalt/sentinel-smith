@@ -103,21 +103,21 @@ static func load_from_wad(wad: WADFile) -> DoomMap:
 
 
 func _to_string() -> String:
-	var ret: String = ""
+	var ret: PackedStringArray = []
 
-	ret += "namespace = %s;" % engine_namespace
+	ret.push_back("namespace = %s;" % engine_namespace)
 	for line in lines:
-		ret += "\n%s" % str(line)
+		ret.push_back(str(line))
 	for side in sides:
-		ret += "\n%s" % str(side)
+		ret.push_back(str(side))
 	for vertex in vertices:
-		ret += "\n%s" % str(vertex)
+		ret.push_back(str(vertex))
 	for sector in sectors:
-		ret += "\n%s" % str(sector)
+		ret.push_back(str(sector))
 	for thing in things:
-		ret += "\n%s" % str(thing)
+		ret.push_back(str(thing))
 
-	return ret
+	return '\n'.join(ret)
 
 
 func _init(data: Dictionary) -> void:

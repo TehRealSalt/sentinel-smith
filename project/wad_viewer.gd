@@ -20,10 +20,16 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	current_wad = wad
 	update_tree()
 
+	PerfTiming.start(&'DoomMap.load_from_wad')
 	current_map = DoomMap.load_from_wad(current_wad)
+	PerfTiming.stop(&'DoomMap.load_from_wad')
+
 	if current_map != null:
-		textmap_display.text = str(current_map)
 		%SubViewport.add_child(current_map)
+
+		PerfTiming.start(&'DoomMap.stringify')
+		textmap_display.text = str(current_map)
+		PerfTiming.stop(&'DoomMap.stringify')
 
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
