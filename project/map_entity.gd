@@ -1,3 +1,4 @@
+@abstract
 class_name DoomEntity
 extends Node
 ## A UDMF map "entity". This is the base type that all map data inherits from.
@@ -25,16 +26,14 @@ var _state_user: Dictionary[StringName, Variant] = {}
 
 
 ## Returns the name that this entity goes by in the UDMF spec.
-func _entity_identifier() -> StringName:
-	assert(false, "_entity_identifier was not overridden!")
-	return &""
+@abstract
+func _entity_identifier() -> StringName
 
 
 ## Returns a description of each UDMF field, their types,
 ## and their default values. See also: [class EntityField].
-func _entity_fields() -> Dictionary[StringName, EntityField]:
-	assert(false, "_entity_fields was not overridden!")
-	return {}
+@abstract
+func _entity_fields() -> Dictionary[StringName, EntityField]
 
 
 ## Returns our entity index in our [member map].

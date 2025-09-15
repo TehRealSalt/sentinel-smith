@@ -14,7 +14,7 @@ config/name="Sentinel Smith"
 run/main_scene="uid://c7xihjmeuu1mu"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="SentinelSmith"
-config/features=PackedStringArray("4.4", "GL Compatibility")
+config/features=PackedStringArray("4.5", "GL Compatibility")
 run/low_processor_mode=true
 config/icon="res://icon.svg"
 

@@ -1,3 +1,4 @@
+@abstract
 class_name DoomEntityMirror
 extends RefCounted
 ## Represents a map structure that doesn't technically exist, but helps reduce
@@ -12,9 +13,8 @@ var _mirroring: DoomEntity
 
 
 ## Returns a description of all fields that are mirrored.
-func _mirrored_fields() -> Dictionary[StringName, StringName]:
-	assert(false, "_mirrored_fields was not overridden!")
-	return {}
+@abstract
+func _mirrored_fields() -> Dictionary[StringName, StringName]
 
 
 func _init(ent: DoomEntity) -> void:
