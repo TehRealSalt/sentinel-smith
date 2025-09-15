@@ -61,7 +61,7 @@ class DoomLine2D:
 
 
 	func _draw() -> void:
-		draw_line(p1, p2, Color.LIGHT_CORAL, 10.0)
+		draw_line(p1, p2, Color.LIGHT_CORAL, -10.0)
 
 
 var display: DoomLine2D = null

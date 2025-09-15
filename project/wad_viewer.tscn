@@ -68,7 +68,6 @@ render_target_update_mode = 4
 script = ExtResource("2_au647")
 
 [node name="Camera2D" type="Camera2D" parent="HBoxContainer/WADContainer/SubViewportContainer/SubViewport"]
-zoom = Vector2(1, -1)
 
 [node name="OpenWADDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true

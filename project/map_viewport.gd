@@ -10,7 +10,9 @@ const ZOOM_LEVELS: Array[float] = [
 	2.5, 3.0, 3.5, 4.0
 ]
 
-var zoom_level: int = 1:
+const DEFAULT_ZOOM := 1
+
+var zoom_level: int = DEFAULT_ZOOM:
 	set(v):
 		zoom_level = clampi(v, 0, ZOOM_LEVELS.size() - 1)
 
@@ -19,11 +21,14 @@ var zoom_level: int = 1:
 		camera.zoom = Vector2(zoom, -zoom) # Doom Y coordinate is flipped
 
 
-func zoom_2d(zoom_offset: int = 0) -> void:
+func mouse_zoom(zoom_offset: int = 0) -> void:
 	var camera := get_camera_2d()
-	# TODO: this position is definitely wrong
-	camera.global_position = camera.get_global_mouse_position()
+	var prev_pos := camera.get_local_mouse_position()
+
 	zoom_level += zoom_offset
+
+	var new_pos := camera.get_local_mouse_position()
+	camera.translate(prev_pos - new_pos)
 
 
 func _unhandled_input(ev: InputEvent) -> void:
@@ -34,7 +39,10 @@ func _unhandled_input(ev: InputEvent) -> void:
 	match button.button_index:
 		MouseButton.MOUSE_BUTTON_WHEEL_UP:
 			if button.pressed:
-				zoom_2d(1)
+				mouse_zoom(1)
 		MouseButton.MOUSE_BUTTON_WHEEL_DOWN:
 			if button.pressed:
-				zoom_2d(-1)
+				mouse_zoom(-1)
+
+func _ready() -> void:
+	zoom_level = DEFAULT_ZOOM
