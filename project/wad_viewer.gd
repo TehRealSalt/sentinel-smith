@@ -20,16 +20,11 @@ func change_wad(wad_file_name: String, wad: WADFile) -> void:
 	current_wad = wad
 	update_tree()
 
-	PerfTiming.start(&'DoomMap.load_from_wad')
+	PerfTiming.start(&'DoomMap.total')
 	current_map = DoomMap.load_from_wad(current_wad)
-	PerfTiming.stop(&'DoomMap.load_from_wad')
-
 	if current_map != null:
 		%SubViewport.add_child(current_map)
-
-		PerfTiming.start(&'DoomMap.stringify')
-		textmap_display.text = str(current_map)
-		PerfTiming.stop(&'DoomMap.stringify')
+	PerfTiming.stop(&'DoomMap.total')
 
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
@@ -68,3 +63,12 @@ func _on_file_dialog_file_selected(path: String) -> void:
 		return
 
 	change_wad(path.get_file(), wad)
+
+
+func _on_output_button_pressed() -> void:
+	if not current_map:
+		return
+
+	PerfTiming.start(&'DoomMap.stringify')
+	textmap_display.text = str(current_map)
+	PerfTiming.stop(&'DoomMap.stringify')
