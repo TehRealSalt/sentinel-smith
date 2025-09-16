@@ -11,14 +11,12 @@ const NORMAL_NOTCH_WIDTH := LINE_WIDTH * 0.5
 const NORMAL_NOTCH_LENGTH := LINE_WIDTH * 1.5
 
 
-## Global coordinate of first vertex.
-## TODO: Replace with a "DoomVertex2D"?
-var p1 := Vector2.ZERO
+## The first vertex.
+var v1: DoomVertex2D
 
 
-## Global coordinate of second vertex.
-## TODO: Replace with a "DoomVertex2D"?
-var p2 := Vector2.ZERO
+## The second vertex.
+var v2: DoomVertex2D
 
 
 ## Global coordinate of the center point.
@@ -39,15 +37,15 @@ var highlighted := false:
 
 ## Update our properties from a [DoomLinedef].
 func update(line: DoomLinedef) -> void:
-	var v1: DoomVertex = line.get(&"v1")
-	p1 = v1.vector()
+	var v1_ent: DoomVertex = line.get(&"v1")
+	v1 = v1_ent.display
 
-	var v2: DoomVertex = line.get(&"v2")
-	p2 = v2.vector()
+	var v2_ent: DoomVertex = line.get(&"v2")
+	v2 = v2_ent.display
 
-	global_position = (p1 + p2) * 0.5
+	global_position = (v1.global_position + v2.global_position) * 0.5
 
-	var delta := p1 - p2
+	var delta := v1.global_position - v2.global_position
 	normal = delta.normalized()
 	normal = normal.rotated(deg_to_rad(90.0))
 
@@ -76,8 +74,8 @@ func _draw() -> void:
 		NORMAL_NOTCH_WIDTH
 	)
 	draw_line(
-		global_position - p1,
-		global_position - p2,
+		global_position - v1.global_position,
+		global_position - v2.global_position,
 		col,
 		LINE_WIDTH
 	)
