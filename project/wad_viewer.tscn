@@ -47,7 +47,6 @@ size_flags_vertical = 3
 [node name="TextMap" type="RichTextLabel" parent="HBoxContainer/VBoxContainer/PanelContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "No map loaded"
 
 [node name="WADContainer" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
@@ -61,6 +60,7 @@ stretch = true
 [node name="SubViewport" type="SubViewport" parent="HBoxContainer/WADContainer/SubViewportContainer"]
 unique_name_in_owner = true
 handle_input_locally = false
+physics_object_picking = true
 size = Vector2i(1076, 800)
 render_target_update_mode = 4
 script = ExtResource("2_au647")
