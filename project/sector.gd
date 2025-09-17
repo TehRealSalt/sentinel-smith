@@ -11,6 +11,10 @@ var floor_plane := DoomSectorPlane.new(self, false)
 var ceiling_plane := DoomSectorPlane.new(self, true)
 
 
+## All sidedefs that reference this sector.
+var sides: Array[DoomSidedef] = []
+
+
 func _entity_identifier() -> StringName:
 	return &"sector"
 

@@ -11,10 +11,12 @@ var map: DoomMap = null
 class EntityField:
 	var type: Variant
 	var default: Variant
+	var after_set: Callable
 
-	func _init(p_type: Variant, p_def: Variant = null) -> void:
+	func _init(p_type: Variant, p_def: Variant = null, p_set_func: Callable = Callable()) -> void:
 		type = p_type
 		default = p_def
+		after_set = p_set_func
 
 
 ## Container for this entity's UDMF state.
@@ -93,8 +95,15 @@ func _set(id: StringName, value: Variant) -> bool:
 				assert(script == (defined_obj as Script))
 		else:
 			assert(new_type == defined_type)
-		
+
+		var prev_value: Variant = _state[id]
 		_state[id] = value
+
+		if value != prev_value:
+			var set_func := fields[id].after_set
+			if set_func.is_valid():
+				set_func.call(prev_value, value)
+
 		return true
 
 	_state_user[id] = value
@@ -145,6 +154,7 @@ func _to_string() -> String:
 
 func _init(from_map: DoomMap, data: Dictionary) -> void:
 	map = from_map
+	map.add_child(self)
 
 	# First, load 
 	var fields := _entity_fields()
@@ -178,11 +188,13 @@ func _init(from_map: DoomMap, data: Dictionary) -> void:
 
 		_state[id] = set_val
 
+		var set_func := fields[id].after_set
+		if set_func.is_valid():
+			set_func.call(null, set_val)
+
 	# Load all underspecified fields as
 	# untyped user properties
 	for id: StringName in data.keys():
 		if _state.has(id):
 			continue
 		_state_user[id] = data.get(id, null)
-
-	map.add_child(self)
