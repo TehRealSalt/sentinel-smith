@@ -11,14 +11,6 @@ var plane_floor := DoomSectorPlane.new(self, false)
 var plane_ceiling := DoomSectorPlane.new(self, true)
 
 
-## All sidedefs that reference this sector.
-##
-## This should [b]not[/b] be modified directly.
-## Changing [member DoomSidedef.sector] will automatically handle
-## updating the list on all involved sectors to be accurate.
-var sides: Array[DoomSidedef] = []
-
-
 ## The light level of the entire sector.
 var light_level: int = 160
 
@@ -29,6 +21,15 @@ var special: int = 0
 
 ## This sector's tag.
 var tag: int = 0
+
+
+## All [DoomSidedef]s that reference this sector.
+##
+## This should [b]not[/b] be modified directly.
+## Changing [member DoomSidedef.sector]
+## will automatically handle updating this list on all
+## involved sectors to be accurate.
+var sides: Array[DoomSidedef] = []
 
 
 func _entity_identifier() -> StringName:

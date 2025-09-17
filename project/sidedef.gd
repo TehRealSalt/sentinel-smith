@@ -45,6 +45,15 @@ var sector: DoomSector = null:
 		sector = new_sector
 
 
+## All [DoomLinedef]s that reference this side.
+##
+## This should [b]not[/b] be modified directly.
+## Changing [member DoomLinedef.side_front] or [member DoomLinedef.side_back]
+## will automatically handle updating this list on all
+## involved sides to be accurate.
+var lines: Array[DoomLinedef] = []
+
+
 func _entity_identifier() -> StringName:
 	return &"sidedef"
 

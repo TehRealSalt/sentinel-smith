@@ -14,13 +14,25 @@ var tag: int = -1
 ## This linedef's "starting" [DoomVertex].
 ##
 ## Line facing normal depends on the order of this and [member v2].
-var v1: DoomVertex
+var v1: DoomVertex = null:
+	set(new_v):
+		if v1 != null:
+			v1.lines.erase(self)
+		if new_v != null:
+			new_v.lines.append(self)
+		v1 = new_v
 
 
 ## This linedef's "ending" [DoomVertex].
 ##
 ## Line facing normal depends on the order of this and [member v1].
-var v2: DoomVertex
+var v2: DoomVertex = null:
+	set(new_v):
+		if v2 != null:
+			v2.lines.erase(self)
+		if new_v != null:
+			new_v.lines.append(self)
+		v2 = new_v
 
 
 ## If [code]true[/code], this blocks all player and enemy [DoomThing]s.
@@ -203,12 +215,24 @@ var arg4: int = 0
 
 ## The front [DoomSidedef] of this line.
 ## Should always be defined.
-var side_front: DoomSidedef
+var side_front: DoomSidedef = null:
+	set(new_side):
+		if side_front != null:
+			side_front.lines.erase(self)
+		if new_side != null:
+			new_side.lines.append(self)
+		side_front = new_side
 
 
 ## The back [DoomSidedef] of this line.
 ## Is allowed to be [code]null[/code] if [member twosided] is [code]false[/code].
-var side_back: DoomSidedef = null
+var side_back: DoomSidedef = null:
+	set(new_side):
+		if side_back != null:
+			side_back.lines.erase(self)
+		if new_side != null:
+			new_side.lines.append(self)
+		side_back = new_side
 
 
 func _entity_identifier() -> StringName:
