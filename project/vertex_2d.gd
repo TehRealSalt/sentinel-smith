@@ -5,7 +5,7 @@ const VERTEX_BOX_SIZE := 10.0
 
 ## Update our properties from a [DoomVertex].
 func update(vertex: DoomVertex) -> void:
-	global_position = vertex.vector()
+	global_position = vertex.position
 	queue_redraw()
 
 

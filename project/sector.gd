@@ -4,15 +4,31 @@ extends DoomEntity
 
 
 ## The properties associated with this sector's floor.
-var floor_plane := DoomSectorPlane.new(self, false)
+var plane_floor := DoomSectorPlane.new(self, false)
 
 
 ## The properties associated with this sector's ceiling.
-var ceiling_plane := DoomSectorPlane.new(self, true)
+var plane_ceiling := DoomSectorPlane.new(self, true)
 
 
 ## All sidedefs that reference this sector.
+##
+## This should [b]not[/b] be modified directly.
+## Changing [member DoomSidedef.sector] will automatically handle
+## updating the list on all involved sectors to be accurate.
 var sides: Array[DoomSidedef] = []
+
+
+## The light level of the entire sector.
+var light_level: int = 160
+
+
+## The sector's special properties.
+var special: int = 0
+
+
+## This sector's tag.
+var tag: int = 0
 
 
 func _entity_identifier() -> StringName:
@@ -21,12 +37,12 @@ func _entity_identifier() -> StringName:
 
 func _entity_fields() -> Dictionary[StringName, EntityField]:
 	return {
-		&"heightfloor": EntityField.new(TYPE_INT, 0),
-		&"heightceiling": EntityField.new(TYPE_INT, 0),
-		&"texturefloor": EntityField.new(TYPE_STRING, null),
-		&"textureceiling": EntityField.new(TYPE_STRING, null),
-		&"lightlevel": EntityField.new(TYPE_INT, 160),
-		&"special": EntityField.new(TYPE_INT, 0),
-		&"id": EntityField.new(TYPE_INT, 0),
-		&"comment": EntityField.new(TYPE_STRING, ""),
+		&"heightfloor": EntityField.new(^':plane_floor:height', 0),
+		&"heightceiling": EntityField.new(^':plane_ceiling:height', 0),
+		&"texturefloor": EntityField.new(^':plane_floor:texture', null),
+		&"textureceiling": EntityField.new(^':plane_ceiling:texture', null),
+		&"lightlevel": EntityField.new(^':light_level', 160),
+		&"special": EntityField.new(^':special', 0),
+		&"id": EntityField.new(^':tag', 0),
+		&"comment": EntityField.new(^':comment', ''),
 	}

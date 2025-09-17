@@ -4,8 +4,10 @@ extends Area2D
 ## Line width when rendered.
 const LINE_WIDTH := 8.0
 
+
 ## Line width of the facing normal notch.
 const NORMAL_NOTCH_WIDTH := LINE_WIDTH * 0.5
+
 
 ## Size of the facing normal notch.
 const NORMAL_NOTCH_LENGTH := LINE_WIDTH * 1.5
@@ -37,11 +39,8 @@ var highlighted := false:
 
 ## Update our properties from a [DoomLinedef].
 func update(line: DoomLinedef) -> void:
-	var v1_ent: DoomVertex = line.get(&"v1")
-	v1 = v1_ent.display
-
-	var v2_ent: DoomVertex = line.get(&"v2")
-	v2 = v2_ent.display
+	v1 = line.v1.display
+	v2 = line.v2.display
 
 	global_position = (v1.global_position + v2.global_position) * 0.5
 

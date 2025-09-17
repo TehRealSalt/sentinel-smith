@@ -7,7 +7,7 @@ extends DoomEntity
 const NO_TEXTURE := "-"
 
 
-## Represents the IDs of [DoomSidedefPart] types. See also: [member parts].
+## Represents the IDs of [DoomSidedefPart] types.
 enum Parts
 {
 	TOP,
@@ -16,22 +16,33 @@ enum Parts
 }
 
 
-## Represents the different [DoomSidedefPart]s of this sidedef.
-var parts: Dictionary[Parts, DoomSidedefPart] = {
-	Parts.TOP: DoomSidedefPart.new(self, Parts.TOP),
-	Parts.BOTTOM: DoomSidedefPart.new(self, Parts.BOTTOM),
-	Parts.MIDDLE: DoomSidedefPart.new(self, Parts.MIDDLE),
-}
+## The upper [DoomSidedefPart].
+var part_top := DoomSidedefPart.new(self, Parts.TOP)
 
 
-## Called after changing the UDMF state sector. Updates the associated sectors'
-## [member DoomSector.sides] list.
-func on_sector_change(prev_sector: DoomSector, new_sector: DoomSector) -> void:
-	if prev_sector != null:
-		prev_sector.sides.erase(self)
+## The lower [DoomSidedefPart].
+var part_bottom := DoomSidedefPart.new(self, Parts.BOTTOM)
 
-	if new_sector != null:
-		new_sector.sides.append(self)
+
+## The middle [DoomSidedefPart].
+var part_middle := DoomSidedefPart.new(self, Parts.MIDDLE)
+
+
+## Global texture offset; applies to all of this side's [DoomSidedefPart]s.
+var offset: Vector2 = Vector2.ZERO
+
+
+## The [DoomSector] that this side faces.
+##
+## Modifying this will automatically change both the old and new
+## [member DoomSector.sides] to be accurate.
+var sector: DoomSector = null:
+	set(new_sector):
+		if sector != null:
+			sector.sides.erase(self)
+		if new_sector != null:
+			new_sector.sides.append(self)
+		sector = new_sector
 
 
 func _entity_identifier() -> StringName:
@@ -40,11 +51,11 @@ func _entity_identifier() -> StringName:
 
 func _entity_fields() -> Dictionary[StringName, EntityField]:
 	return {
-		&"offsetx": EntityField.new(TYPE_INT, 0),
-		&"offsety": EntityField.new(TYPE_INT, 0),
-		&"texturetop": EntityField.new(TYPE_STRING, NO_TEXTURE),
-		&"texturebottom": EntityField.new(TYPE_STRING, NO_TEXTURE),
-		&"texturemiddle": EntityField.new(TYPE_STRING, NO_TEXTURE),
-		&"sector": EntityField.new(DoomSector, null, on_sector_change),
-		&"comment": EntityField.new(TYPE_STRING, ""),
+		&"offsetx": EntityField.new(^':offset:x', 0),
+		&"offsety": EntityField.new(^':offset:y', 0),
+		&"texturetop": EntityField.new(^':part_top:texture', NO_TEXTURE),
+		&"texturebottom": EntityField.new(^':part_bottom:texture', NO_TEXTURE),
+		&"texturemiddle": EntityField.new(^':part_middle:texture', NO_TEXTURE),
+		&"sector": EntityField.new(^':sector', null, DoomSector),
+		&"comment": EntityField.new(^':comment', ""),
 	}

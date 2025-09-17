@@ -7,24 +7,30 @@ extends Node
 var map: DoomMap = null
 
 
+## Comment. Nearly every entity has this.
+var comment: String = ''
+
+
 ## Represents properties about one of our fields.
 class EntityField:
-	var type: Variant
-	var default: Variant
-	var after_set: Callable
+	## The [NodePath] to the Godot property that this UDMF field links to.
+	var path: NodePath
 
-	func _init(p_type: Variant, p_def: Variant = null, p_set_func: Callable = Callable()) -> void:
-		type = p_type
+	## The default value to initialize to,
+	## when the map does not have it specified.
+	var default: Variant = null
+
+	## The script that this field corresponds with.
+	var entity_script: Script = null
+
+	func _init(p_path: NodePath, p_def: Variant = null, p_script: Script = null) -> void:
+		path = p_path.get_as_property_path()
 		default = p_def
-		after_set = p_set_func
+		entity_script = p_script
 
 
-## Container for this entity's UDMF state.
-var _state: Dictionary[StringName, Variant] = {}
-
-
-## Container for this entity's user / under-specified state.
-var _state_user: Dictionary[StringName, Variant] = {}
+## Container for this entity's user / under-specified UDMF fields.
+var user_state: Dictionary[StringName, Variant] = {}
 
 
 ## Returns the name that this entity goes by in the UDMF spec.
@@ -43,71 +49,31 @@ func _entity_index() -> int:
 	return map.entity_type_to_array[get_script()].find(self)
 
 
-func _get_property_list() -> Array[Dictionary]:
-	var ret: Array[Dictionary] = []
+func _get_field_string(key: StringName, value: Variant, type: Variant.Type, script: Script, default: Variant) -> String:
+	if script != null:
+		# Entities are stored by their index
+		type = TYPE_INT
 
-	var fields := _entity_fields()
-	for key: StringName in fields.keys():
-		var prop: Dictionary = {}
-		prop.name = key
-
-		var type: Variant = fields[key].type
-		if type is Object:
-			prop.type = TYPE_OBJECT
-			var obj: Object = type_convert(type, TYPE_OBJECT)
-			var script: Script = obj.get_script()
-			prop.class_name = script.get_global_name()
+		if value == null:
+			value = -1
 		else:
-			prop.type = type
+			var obj: Object = type_convert(value, TYPE_OBJECT)
+			var ent := obj as DoomEntity
+			value = ent._entity_index()
 
-		ret.push_back(prop)
+	if (default != null
+	and value == default):
+		return ""
 
-	for key: StringName in _state_user.keys():
-		assert(not (key in _state))
+	assert(value != null)
 
-		var prop: Dictionary = {}
-		prop.name = key
-		prop.type = typeof(_state_user)
+	var str_value: String = ''
+	if type == TYPE_STRING:
+		str_value = '"%s"' % value
+	else:
+		str_value = str(value)
 
-		ret.push_back(prop)
-
-	return ret
-
-
-func _get(id: StringName) -> Variant:
-	if _state.has(id):
-		return _state[id]
-
-	return _state_user.get(id)
-
-
-func _set(id: StringName, value: Variant) -> bool:
-	if _state.has(id):
-		var fields := _entity_fields()
-		var new_type := typeof(value)
-		var defined_type: Variant = fields[id].type
-		if defined_type is Object:
-			var defined_obj: Object = type_convert(defined_type, TYPE_OBJECT)
-			if new_type != TYPE_NIL:
-				assert(new_type == TYPE_OBJECT)
-				var obj: Object = type_convert(value, TYPE_OBJECT)
-				var script: Script = obj.get_script()
-				assert(script == (defined_obj as Script))
-		else:
-			assert(new_type == defined_type)
-
-		var prev_value: Variant = _state[id]
-		_state[id] = value
-
-		if value != prev_value:
-			var set_func := fields[id].after_set
-			if set_func.is_valid():
-				set_func.call(prev_value, value)
-
-		return true
-
-	_state_user[id] = value
-	return true
+	return "\t%s = %s;" % [key, str_value]
 
 
 func _to_string() -> String:
@@ -117,36 +83,20 @@ func _to_string() -> String:
 	ret.push_back(_entity_identifier())
 	ret.push_back("{")
 
-	for key: StringName in _state.keys():
-		var existing_field := fields[key]
-		var val: Variant = _state[key]
+	for key: StringName in fields.keys():
+		var field := fields[key]
+		var value: Variant = get_indexed(field.path)
+		var type: Variant.Type = typeof(value) as Variant.Type
+		var write := _get_field_string(key, value, type, field.entity_script, field.default)
+		if not write.is_empty():
+			ret.push_back(write)
 
-		if val == null:
-			assert(existing_field.type in map.entity_type_to_array.keys())
-			val = -1
-		elif val is Object:
-			assert(existing_field.type in map.entity_type_to_array.keys())
-			var obj: Object = type_convert(val, TYPE_OBJECT)
-			var ent := obj as DoomEntity
-			val = ent._entity_index()
-
-		if typeof(val) == TYPE_STRING:
-			val = '"%s"' % val # Give it double quotes
-
-		if (existing_field == null
-		or val != existing_field.default):
-			ret.push_back("\t%s = %s;" % [key, val])
-
-	for key: StringName in _state_user.keys():
-		var val: Variant = _state_user[key]
-		if val == null:
-			continue
-		assert(not (val is Object))
-
-		if typeof(val) == TYPE_STRING:
-			val = '"%s"' % val # Give it double quotes
-
-		ret.push_back("\t%s = %s;" % [key, val])
+	for key: StringName in user_state.keys():
+		var value: Variant = user_state[key]
+		var type: Variant.Type = typeof(value) as Variant.Type
+		var write := _get_field_string(key, value, type, null, null)
+		if not write.is_empty():
+			ret.push_back(write)
 
 	ret.push_back("}")
 	return '\n'.join(ret)
@@ -156,45 +106,36 @@ func _init(from_map: DoomMap, data: Dictionary) -> void:
 	map = from_map
 	map.add_child(self)
 
-	# First, load 
 	var fields := _entity_fields()
-	for id: StringName in fields.keys():
-		var field: EntityField = fields[id]
 
+	# First, load explicitly-defined fields.
+	# This needs to be done fully before doing user fields.
+	for id: StringName in fields.keys():
+		var field: EntityField = fields.get(id, null)
 		if field.default == null:
 			# No default means this field is REQUIRED
-			assert(data.has(id))
+			assert(data.has(id), 'UDMF map is missing required field "%s"' % id)
 
-		var set_val: Variant = null
-		if field.type is Object:
-			assert(field.type in map.entity_type_to_array.keys())
-
-			var obj: Object = type_convert(field.type, TYPE_OBJECT)
-			var ent_type: Script = (obj as Script)
-
+		var value: Variant = null
+		if field.entity_script != null:
 			var index: int = data.get(id, -1)
 			if (index < 0 and field.default != null):
 				# Pointer is allowed to be omitted
-				set_val = null
+				value = null
 			else:
-				set_val = map.get_entity_pointer(ent_type, index)
-				assert(is_instance_valid(set_val))
+				value = map.get_entity_pointer(field.entity_script, index)
+				assert(is_instance_valid(value))
 		else:
-			set_val = data.get(id, field.default)
-			assert(
-				is_instance_of(set_val, field.type),
-				"[%s]: Expected type %s, got %s" % [id, str(field.type), type_string(typeof(set_val))]
-			)
+			value = data.get(id, field.default)
 
-		_state[id] = set_val
+		set_indexed(field.path, value)
 
-		var set_func := fields[id].after_set
-		if set_func.is_valid():
-			set_func.call(null, set_val)
-
-	# Load all underspecified fields as
-	# untyped user properties
+	# Load all under-specified fields as
+	# un-typed user properties.
 	for id: StringName in data.keys():
-		if _state.has(id):
+		if id in fields.keys():
 			continue
-		_state_user[id] = data.get(id, null)
+
+		var value: Variant = data.get(id, null)
+		if value != null:
+			user_state[id] = value

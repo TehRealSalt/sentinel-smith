@@ -1,29 +1,20 @@
 class_name DoomSidedefPart
-extends DoomEntityMirror
+extends RefCounted
 ## Represents a [DoomSidedef]'s upper, middle, and lower "parts".
 
-var which_part: DoomSidedef.Parts
+
+## The [DoomSidedef] that this part belongs to.
+var side: DoomSidedef
 
 
-func _mirrored_fields() -> Dictionary[StringName, StringName]:
-	match which_part:
-		DoomSidedef.Parts.TOP:
-			return {
-				&"texture": &"texturetop",
-			}
-		DoomSidedef.Parts.BOTTOM:
-			return {
-				&"texture": &"texturebottom",
-			}
-		DoomSidedef.Parts.MIDDLE:
-			return {
-				&"texture": &"texturemiddle",
-			}
-		_:
-			assert(false)
-			return {}
+## Which part of the sidedef that this is.
+var which: DoomSidedef.Parts
 
 
-func _init(side: DoomSidedef, which: DoomSidedef.Parts) -> void:
-	super(side)
-	which_part = which
+## This part's texture name / file path.
+var texture: String = DoomSidedef.NO_TEXTURE
+
+
+func _init(p_side: DoomSidedef, p_which: DoomSidedef.Parts) -> void:
+	side = p_side
+	which = p_which

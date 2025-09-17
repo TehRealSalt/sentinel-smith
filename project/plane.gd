@@ -1,23 +1,25 @@
 class_name DoomSectorPlane
-extends DoomEntityMirror
-## Represents a mirror for [DoomSector]'s floor and ceiling planes.
-
-var is_ceiling := false
+extends RefCounted
+## Represents a [DoomSector]'s floor and ceiling planes.
 
 
-func _mirrored_fields() -> Dictionary[StringName, StringName]:
-	if is_ceiling:
-		return {
-			&"height": &"heightceiling",
-			&"texture": &"textureceiling",
-		}
-	else:
-		return {
-			&"height": &"heightfloor",
-			&"texture": &"textureceiling",
-		}
+## The [DoomSector] that this plane belongs to.
+var sector: DoomSector
 
 
-func _init(sector: DoomSector, ceiling: bool) -> void:
-	super(sector)
-	is_ceiling = ceiling
+## If [code]true[/code], this is a ceiling plane.
+## Otherwise, it's a floor plane.
+var is_ceiling: bool = false
+
+
+## This sector's Z coordinate.
+var height: int = 0
+
+
+## This plane's texture name / file path.
+var texture: String
+
+
+func _init(p_sector: DoomSector, p_ceiling: bool) -> void:
+	sector = p_sector
+	is_ceiling = p_ceiling
