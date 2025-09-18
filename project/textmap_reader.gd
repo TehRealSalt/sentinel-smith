@@ -1,44 +1,20 @@
 class_name DoomTextmap
 extends Resource
-
-# TODO: Replace these with ord in Godot 4.5
-# Whitespace
-const _NULL := 0x00 #ord('\0')
-const _NEW_LINE := 0x0a #ord('\n')
-const _TAB := 0x09 #ord('\t')
-const _SPACE := 0x20 #ord(' ')
-
-# Key symbols
-const _EQUAL := 0x3d #ord('=')
-const _SEMICOLON := 0x3b #ord(';')
-const _OPEN := 0x28 #ord('(')
-const _CLOSE := 0x29 #ord(')')
-const _BRACE_OPEN := 0x7b #ord('{')
-const _BRACE_CLOSE := 0x7d #ord('}')
-const _QUOTE := 0x22 #ord('"')
-const _QUOTE_SINGLE := 0x27 #ord('\'')
-
-# Comments
-const _SLASH := 0x2f #ord('/')
-const _SLASH_BACK := 0x2f #ord('\\')
-const _STAR := 0x2a #ord('*')
+## Handles loading a UDMF textmap into a generic [Dictionary].
 
 
+## Unicodes characters that are not allowed in keywords or identifiers.
 const BAD_WORD_CHARS: Array[int] = [
-	_BRACE_OPEN,
-	_BRACE_CLOSE,
-	_OPEN,
-	_CLOSE,
-	_SEMICOLON,
-	_QUOTE,
-	_QUOTE_SINGLE,
-	_NEW_LINE,
-	_TAB,
-	_SPACE,
-	_NULL
+	ord('{'), ord('}'), # Braces
+	ord('('), ord(')'), # Parentheses
+	ord(';'), # Semicolon
+	ord('"'), ord('\''), # Quotes
+	ord('\n'), ord('\t'), ord(' '), # Whitespace
+	ord('\u0000') # Null
 ]
 
 
+## Every type of token that can be interpreted by the scanner.
 enum TokenType
 {
 	ERROR,
@@ -64,16 +40,36 @@ enum TokenType
 }
 
 
+## All keywords this format supports, mapped to their token.
 const KEYWORDS: Dictionary[StringName, TokenType] = {
 	&'true': TokenType.TRUE,
 	&'false': TokenType.FALSE,
 }
 
 
+## All tokens that are considered values, for assignments.
+const VALUE_TOKENS: Array[TokenType] = [
+	TokenType.INT,
+	TokenType.FLOAT,
+	TokenType.STRING,
+	TokenType.TRUE,
+	TokenType.FALSE,
+]
+
+
+## Represents a single token that was scanned.
 class Token:
+	## The line number this token was found on, in the original [String].
 	var line: int = 0
+
+	## What kind of token this is.
 	var type: TokenType = TokenType.ERROR
+
+	## The text that was scanned to create this token.
 	var lexeme: String = ''
+
+	## The text converted into a literal value.
+	## This is only set for certain kinds of tokens.
 	var literal: Variant = null
 
 	func _init(p_type: TokenType, p_line: int, p_lexeme: String, p_literal: Variant = null) -> void:
@@ -83,10 +79,11 @@ class Token:
 		literal = p_literal
 
 
-## A [Dictionary] representing the Textmap's output.
+## A [Dictionary] representing the textmap's output.
 var data: Dictionary[StringName, Variant] = {}
 
 
+## Handles scanning the text for tokens.
 class Scanner:
 	## All of the [class Token]s that were scanned.
 	var tokens: Array[Token] = []
@@ -98,6 +95,8 @@ class Scanner:
 	var _position: int = 0 # Scan current position
 	var _line_count: int = 0 # Scanned lines
 
+
+	## Adds a new token to our running list of tokens.
 	func add_token(type: TokenType, literal: Variant = null) -> Token:
 		if type == TokenType.ERROR:
 			push_error("TEXTMAP scan failure, line %d: %s" % [_line_count, literal])
@@ -108,16 +107,24 @@ class Scanner:
 		return token
 
 
+	## Returns [code]true[/code] if the scan cursor
+	## passes the end of the string. Setting [param distance]
+	## can check farther than the scan cursor.
 	func at_end(distance: int = 0) -> bool:
 		return _position + distance >= source.length()
 
 
+	## Returns the next unicode character, and advances the scan cursor
+	## by [param distance].
 	func advance(distance: int = 0) -> int:
 		var ret: int = source.unicode_at(_position)
 		_position += distance + 1
 		return ret
 
 
+	## Returns [code]true[/code] if the next unicode matches
+	## the given [param expected] unicode character.
+	## Conditionally advances the cursor position if it matches.
 	func matches(expected: int) -> bool:
 		if at_end():
 			return false
@@ -130,38 +137,45 @@ class Scanner:
 		return true
 
 
+	## Returns the unicode at the scan cursor, without
+	## advancing it. Setting [param distance]
+	## can check farther than the scan cursor.
 	func peek(distance: int = 0) -> int:
 		if at_end(distance):
-			return _NULL
+			return ord('\u0000')
 
 		return source.unicode_at(_position + distance)
 
 
+	## Skips ALL text until reaching the next new line.
 	func skip_comment() -> void:
 		while (at_end() == false):
-			if peek() == _NEW_LINE:
+			if peek() == ord('\n'):
 				break
 
 			advance()
 
 
+	## Skips ALL text until reaching the next multi-line comment closer, "*/".
 	func skip_comment_multiline() -> void:
 		while (at_end() == false):
-			if (peek(0) == _STAR and peek(1) == _SLASH):
+			if (peek(0) == ord('*') and peek(1) == ord('/')):
 				advance(1)
 				break
 
 			advance()
 
 
+	## Interprets the text at the current cursor position
+	## as a string.
 	func scan_string() -> Token:
 		while (at_end() == false):
 			var next := peek()
-			if (next == _QUOTE and source.unicode_at(_position) != _SLASH_BACK):
+			if (next == ord('"') and source.unicode_at(_position) != ord('\\')):
 				# Don't call advance here, we need to check for EOF
 				break
 
-			if next == _NEW_LINE:
+			if next == ord('\n'):
 				_line_count += 1
 
 			advance()
@@ -176,6 +190,10 @@ class Scanner:
 		return add_token(TokenType.STRING, str_without_quotes)
 
 
+	## Interprets the text at the current cursor position
+	## as a "word". This can be either an integer, a float,
+	## an identifier, or a keyword. Note that strings are
+	## handled by [method scan_string] instead.
 	func scan_word() -> Token:
 		while (at_end() == false):
 			var next := peek()
@@ -201,31 +219,35 @@ class Scanner:
 		return add_token(TokenType.ERROR, 'Invalid word "%s"' % word)
 
 
+	## Interprets the text at the current cursor position
+	## as a token, and adds it to our running list.
+	## Returns the token that was created. This may be type ERROR
+	## if an error occurred.
 	func scan_token() -> Token:
 		var c: int = advance()
 
 		match c:
-			_SPACE, _TAB:
+			ord(' '), ord('\t'):
 				return null
-			_NEW_LINE:
+			ord('\n'):
 				_line_count += 1
 				return null
-			_EQUAL:
+			ord('='):
 				return add_token(TokenType.ASSIGN, String.chr(c))
-			_SEMICOLON:
+			ord(';'):
 				return add_token(TokenType.END, String.chr(c))
-			_BRACE_OPEN:
+			ord('{'):
 				return add_token(TokenType.BLOCK_START, String.chr(c))
-			_BRACE_CLOSE:
+			ord('}'):
 				return add_token(TokenType.BLOCK_END, String.chr(c))
-			_SLASH:
-				if matches(_SLASH):
+			ord('/'):
+				if matches(ord('/')):
 					skip_comment()
 					return null
-				elif matches(_STAR):
+				elif matches(ord('*')):
 					skip_comment_multiline()
 					return null
-			_QUOTE:
+			ord('"'):
 				return scan_string()
 
 		if c in BAD_WORD_CHARS:
@@ -234,6 +256,9 @@ class Scanner:
 		return scan_word()
 
 
+	## Attempts to break the [String] into a list of tokens.
+	## Returns the [Array] of tokens that was created. If it is
+	## empty, then an error occurred while parsing.
 	func scan() -> Array[Token]:
 		tokens.clear()
 		_start = 0
@@ -257,36 +282,51 @@ class Scanner:
 		source = p_source
 
 
+## Handles scanning the text for tokens.
 class Parser:
 	## All of the [class Token]s to parse.
 	var tokens: Array[Token] = []
 
+
 	## All of the parsed data
 	var parsed: Dictionary[StringName, Variant] = {}
 
-	var _position: int = 0 # Current token index
 
-	var _in_block: StringName = &'' # Working on a block...
-	var _block: Dictionary[StringName, Variant] = {} # Current working block
+	# Current token index
+	var _position: int = 0
 
+	# Working on a block...
+	var _in_block: StringName = &''
+
+	# Current working block
+	var _block: Dictionary[StringName, Variant] = {}
+
+	# Error already thrown, don't throw any more.
 	var _error := false
+
+
+	## Throws a parser error.
 	func throw_error(msg: String, token: Token = null) -> void:
 		if _error:
 			return
 
-		var full_msg: String
 		if (token == null and at_end() == false):
+			# Try to infer what the token is...
 			token = tokens[_position]
 
+		var full_msg: String
 		if token != null:
-			full_msg = "TEXTMAP scan failure, line %d: %s" % [token.line, msg]
+			full_msg = 'TEXTMAP parse failure, line %d: %s' % [token.line, msg]
 		else:
-			full_msg = "TEXTMAP scan failure: %s" % msg
+			full_msg = 'TEXTMAP parse failure: %s' % msg
 
 		push_error(full_msg)
 		_error = true
 
 
+	## Returns [code]true[/code] if the parse cursor
+	## passes the end of the file. Setting [param distance]
+	## can check farther than the parse cursor.
 	func at_end(distance: int = 0) -> bool:
 		assert(distance >= 0)
 		if _position + distance >= tokens.size():
@@ -295,6 +335,8 @@ class Parser:
 		return (ret.type == TokenType.EOF)
 
 
+	## Returns the next token, and advances the parse cursor
+	## by [param distance].
 	func advance(distance: int = 0) -> Token:
 		assert(distance >= 0)
 		var ret: Token = tokens[_position]
@@ -302,6 +344,9 @@ class Parser:
 		return ret
 
 
+	## Returns [code]true[/code] if the next token matches
+	## the given [param type]. Conditionally advances the
+	## cursor position if the type matches.
 	func matches(expected_type: TokenType) -> bool:
 		var token: Token
 		if at_end():
@@ -316,6 +361,9 @@ class Parser:
 		return true
 
 
+	## Returns the token at the parse cursor, without
+	## advancing it. Setting [param distance]
+	## can check farther than the parse cursor.
 	func peek(distance: int = 0) -> Token:
 		assert(distance >= 0)
 		if at_end(distance):
@@ -324,14 +372,9 @@ class Parser:
 		return tokens[_position + distance]
 
 
-	const VALUE_TOKENS: Array[TokenType] = [
-		TokenType.INT,
-		TokenType.FLOAT,
-		TokenType.STRING,
-		TokenType.TRUE,
-		TokenType.FALSE,
-	]
-
+	## Attempts to process the current cursor position as
+	## an assignment expression.
+	## Returns [code]false[/code] if an error was thrown.
 	func assignment_expr() -> bool:
 		var identifier := advance()
 		if identifier.type != TokenType.IDENTIFIER:
@@ -377,6 +420,9 @@ class Parser:
 		return true
 
 
+	## Attempts to process the current cursor position as
+	## a block's expression list.
+	## Returns [code]false[/code] if an error was thrown.
 	func expr_list() -> bool:
 		while (peek().type != TokenType.BLOCK_END):
 			if assignment_expr() == false:
@@ -386,6 +432,9 @@ class Parser:
 		return true
 
 
+	## Attempts to process the current cursor position as
+	## a new block.
+	## Returns [code]false[/code] if an error was thrown.
 	func block() -> bool:
 		if not _in_block.is_empty():
 			throw_error('Tried to start block within a block')
@@ -421,6 +470,9 @@ class Parser:
 		return true
 
 
+	## Attempts to process the current cursor position as
+	## a single global space expression.
+	## Returns [code]false[/code] if an error was thrown.
 	func global_expr() -> bool:
 		var symbol := peek(1)
 		match symbol.type:
@@ -432,6 +484,9 @@ class Parser:
 		return false
 
 
+	## Attempts to process the current cursor position as
+	## the global space's entire expression list.
+	## Returns [code]false[/code] if an error was thrown.
 	func global_expr_list() -> bool:
 		while (at_end() == false):
 			if global_expr() == false:
@@ -441,6 +496,9 @@ class Parser:
 		return true
 
 
+	## Attempts to process a scanned token list.
+	## Returns the [Dictionary] that was created. If it is
+	## empty, then an error occurred while parsing.
 	func translation_unit() -> Dictionary[StringName, Variant]:
 		parsed = {}
 		_position = 0
