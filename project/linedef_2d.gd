@@ -1,5 +1,7 @@
 class_name DoomLinedef2D
-extends Area2D
+extends DoomSelectable2D
+## Represents a selectable vertex in 2D mode. 
+
 
 ## Line width when rendered.
 const LINE_WIDTH := 8.0
@@ -29,16 +31,10 @@ var mid := Vector2.ZERO
 var normal := Vector2.ZERO
 
 
-## TEMPORARY: Mouse highlighting
-var highlighted := false:
-	set(v):
-		if highlighted != v:
-			highlighted = v
-			queue_redraw()
-
-
 ## Update our properties from a [DoomLinedef].
-func update(line: DoomLinedef) -> void:
+func _on_entity_update() -> void:
+	var line := entity as DoomLinedef
+
 	v1 = line.v1.display
 	v2 = line.v2.display
 
@@ -57,14 +53,12 @@ func update(line: DoomLinedef) -> void:
 		delta.length()
 	)
 
-	queue_redraw()
-
 
 func _draw() -> void:
 	var col := Color.LIGHT_GRAY
 
-	if highlighted:
-		col = Color.CORAL
+	#if highlighted:
+	#	col = Color.CORAL
 
 	draw_line(
 		Vector2.ZERO,
@@ -78,12 +72,3 @@ func _draw() -> void:
 		col,
 		LINE_WIDTH
 	)
-
-
-# TEMPORARY MOUSE HIGHLIGHTING
-func _on_mouse_entered() -> void:
-	highlighted = true
-
-
-func _on_mouse_exited() -> void:
-	highlighted = false

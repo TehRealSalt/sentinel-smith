@@ -1,8 +1,6 @@
 class_name MapViewport
 extends SubViewport
 
-var drag_capture := false
-
 
 const ZOOM_LEVELS: Array[float] = [
 	0.125, 0.25, 0.5, 0.75, 1.0,
@@ -43,6 +41,7 @@ func _unhandled_input(ev: InputEvent) -> void:
 		MouseButton.MOUSE_BUTTON_WHEEL_DOWN:
 			if button.pressed:
 				mouse_zoom(-1)
+
 
 func _ready() -> void:
 	zoom_level = DEFAULT_ZOOM

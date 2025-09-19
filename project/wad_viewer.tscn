@@ -52,6 +52,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="ModesList" type="ItemList" parent="HBoxContainer/WADContainer"]
+layout_mode = 2
+auto_height = true
+item_count = 3
+max_columns = 3
+item_0/text = "Vertices"
+item_1/text = "Lines"
+item_2/text = "Sectors"
+
 [node name="SubViewportContainer" type="SubViewportContainer" parent="HBoxContainer/WADContainer"]
 layout_mode = 2
 size_flags_vertical = 3
@@ -61,11 +70,14 @@ stretch = true
 unique_name_in_owner = true
 handle_input_locally = false
 physics_object_picking = true
-size = Vector2i(1076, 800)
+size = Vector2i(1076, 761)
 render_target_update_mode = 4
 script = ExtResource("2_au647")
 
 [node name="Camera2D" type="Camera2D" parent="HBoxContainer/WADContainer/SubViewportContainer/SubViewport"]
+
+[node name="Camera3D" type="Camera3D" parent="HBoxContainer/WADContainer/SubViewportContainer/SubViewport"]
+visible = false
 
 [node name="OpenWADDialog" type="FileDialog" parent="."]
 unique_name_in_owner = true
