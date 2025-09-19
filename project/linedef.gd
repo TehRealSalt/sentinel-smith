@@ -284,9 +284,10 @@ var display: DoomLinedef2D = null
 func update_display() -> void:
 	if display == null:
 		display = DISPLAY_SCENE.instantiate()
+		display.entity = self
 		add_child(display)
 
-	display.update(self)
+	display.update_properties()
 
 
 func _init(this_map: DoomMap, data: Dictionary) -> void:

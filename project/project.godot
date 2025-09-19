@@ -62,6 +62,9 @@ window/subwindows/embed_subwindows=false
 [layer_names]
 
 2d_physics/layer_1="default"
+2d_physics/layer_2="vertices"
+2d_physics/layer_3="lines"
+2d_physics/layer_4="sectors"
 
 [rendering]
 

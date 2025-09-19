@@ -1,12 +1,14 @@
 class_name DoomVertex2D
-extends Area2D
+extends DoomSelectable2D
+## Represents a selectable vertex in 2D mode. 
+
 
 const VERTEX_BOX_SIZE := 10.0
 
-## Update our properties from a [DoomVertex].
-func update(vertex: DoomVertex) -> void:
+
+func _on_entity_update() -> void:
+	var vertex := entity as DoomVertex
 	global_position = vertex.position
-	queue_redraw()
 
 
 func _draw() -> void:
