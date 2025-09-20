@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Sentinel Smith"
-run/main_scene="uid://c7xihjmeuu1mu"
+run/main_scene="uid://33cdq2sflgc8"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="SentinelSmith"
 config/features=PackedStringArray("4.5", "GL Compatibility")
@@ -20,7 +20,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+EventBus="*res://event_bus.gd"
 PerfTiming="*res://perf_timing.gd"
+MapFileDialog="*res://map_file_dialog.tscn"
 
 [debug]
 

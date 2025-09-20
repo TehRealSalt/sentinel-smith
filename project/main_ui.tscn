@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://33cdq2sflgc8"]
+[gd_scene load_steps=3 format=3 uid="uid://33cdq2sflgc8"]
 
 [ext_resource type="Script" uid="uid://dlonuprfuxvof" path="res://main_dropdown_file.gd" id="1_2ppmm"]
+[ext_resource type="Script" uid="uid://bibnrcph8k1v6" path="res://main_ui.gd" id="1_w37m7"]
 
 [node name="MainUI" type="Control"]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_w37m7")
 
 [node name="MainContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -43,19 +45,12 @@ item_count = 1
 popup/item_0/text = "TODO"
 popup/item_0/id = 0
 
-[node name="MapTabContainer" type="TabContainer" parent="MainContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="MainContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MapTabContainer" type="TabContainer" parent="MainContainer/PanelContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 drag_to_rearrange_enabled = true
-
-[node name="OpenWADDialog" type="FileDialog" parent="."]
-unique_name_in_owner = true
-title = "Open a File"
-initial_position = 1
-size = Vector2i(960, 600)
-popup_window = true
-ok_button_text = "Open"
-file_mode = 0
-display_mode = 1
-access = 2
-filters = PackedStringArray("*.wad;Doom WAD files")

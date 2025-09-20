@@ -1,0 +1,37 @@
+[gd_scene load_steps=2 format=3 uid="uid://b3cd72gxp1han"]
+
+[ext_resource type="Script" uid="uid://bl4u51622me43" path="res://output_window.gd" id="1_d0l1c"]
+
+[node name="OutputWindow" type="Window"]
+oversampling_override = 1.0
+title = "Output"
+initial_position = 1
+size = Vector2i(320, 200)
+min_size = Vector2i(320, 200)
+script = ExtResource("1_d0l1c")
+
+[node name="Panel" type="Panel" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Text" type="RichTextLabel" parent="Panel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 2
+context_menu_enabled = true
+threaded = true
+selection_enabled = true
+
+[connection signal="close_requested" from="." to="." method="_on_close_requested"]
