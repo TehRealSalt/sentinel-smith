@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0goswnj7r63n"]
+
+[ext_resource type="Script" uid="uid://b5x33ojtax0kt" path="res://map_file_dialog.gd" id="1_btqv8"]
+
+[node name="MapFileDialog" type="FileDialog"]
+title = "Open a File"
+initial_position = 1
+size = Vector2i(960, 600)
+popup_window = true
+ok_button_text = "Open"
+file_mode = 0
+display_mode = 1
+access = 2
+filters = PackedStringArray("*.wad;Doom WAD files")
+script = ExtResource("1_btqv8")
+
+[connection signal="file_selected" from="." to="." method="_on_file_selected"]

@@ -10,7 +10,7 @@ enum ItemID
 }
 
 
-func item_pressed(id: int) -> void:
+func _on_id_pressed(id: int) -> void:
 	match id:
 		ItemID.OPEN:
 			open_map_dialog()
@@ -21,11 +21,12 @@ func item_pressed(id: int) -> void:
 
 
 func open_map_dialog() -> void:
-	pass
+	var dialog := MapFileDialog as FileDialog
+	dialog.visible = true
 
 
 func create_map_output() -> void:
-	pass
+	EventBus.request_output.emit()
 
 
 func _ready() -> void:
@@ -33,4 +34,6 @@ func _ready() -> void:
 	popup.add_item('Open', ItemID.OPEN, (KEY_MASK_CTRL | KEY_O) as Key)
 	popup.add_item('Save', ItemID.SAVE, (KEY_MASK_CTRL | KEY_S) as Key)
 	popup.set_item_disabled(ItemID.SAVE, true)
-	popup.add_item('DEBUG: Show Output', ItemID.OUTPUT)
+	popup.add_item('DEBUG: Make Output', ItemID.OUTPUT)
+
+	popup.id_pressed.connect(_on_id_pressed)
