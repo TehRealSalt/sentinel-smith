@@ -26,10 +26,12 @@ func update_properties() -> void:
 	queue_redraw()
 
 
-func _on_input_event(_view: Viewport, ev: InputEvent, _shape_idx: int) -> void:
+func _on_input_event(view: Viewport, ev: InputEvent, _shape_idx: int) -> void:
 	var button := (ev as InputEventMouseButton)
 	if button == null:
 		return
 
 	if button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
 		EventBus.selectable_2d_clicked.emit(self)
+		view.set_input_as_handled()
+		return

@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://ddxpivoo2gx2g"]
+[gd_scene load_steps=4 format=3 uid="uid://ddxpivoo2gx2g"]
 
-[ext_resource type="Script" uid="uid://cclah7s2ysgno" path="res://map_camera_2d.gd" id="1_wl3j5"]
+[ext_resource type="Script" uid="uid://bgx1psyjjg6xo" path="res://map_control.gd" id="1_01x0f"]
+[ext_resource type="Script" uid="uid://cclah7s2ysgno" path="res://map_camera_2d.gd" id="2_8g8wr"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_wl3j5"]
 
@@ -11,6 +12,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_01x0f")
 
 [node name="MapContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -57,4 +59,8 @@ size = Vector2i(1280, 765)
 render_target_update_mode = 4
 
 [node name="Camera2D" type="Camera2D" parent="MapContainer/MapViewContainer/Viewport"]
-script = ExtResource("1_wl3j5")
+script = ExtResource("2_8g8wr")
+
+[connection signal="toggled" from="MapContainer/ModesContainer/VerticesButton" to="." method="_on_vertices_button_toggled"]
+[connection signal="toggled" from="MapContainer/ModesContainer/LinesButton" to="." method="_on_lines_button_toggled"]
+[connection signal="toggled" from="MapContainer/ModesContainer/SectorsButton" to="." method="_on_sectors_button_toggled"]
