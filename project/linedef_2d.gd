@@ -57,8 +57,8 @@ func _on_entity_update() -> void:
 func _draw() -> void:
 	var col := Color.LIGHT_GRAY
 
-	#if highlighted:
-	#	col = Color.CORAL
+	if highlighted:
+		col = Color.CORAL
 
 	draw_line(
 		Vector2.ZERO,

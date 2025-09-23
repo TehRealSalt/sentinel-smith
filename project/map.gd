@@ -120,7 +120,25 @@ func _to_string() -> String:
 	return '\n'.join(ret)
 
 
+var selected: Array[DoomSelectable2D] = []
+
+
+func _on_selectable_2d_clicked(obj: DoomSelectable2D) -> void:
+	if obj.entity.map != self:
+		return
+
+	var index := selected.find(obj)
+	if index != -1:
+		selected.remove_at(index)
+		obj.highlighted = false
+	else:
+		selected.push_back(obj)
+		obj.highlighted = true
+
+
 func _init(data: Dictionary) -> void:
+	EventBus.selectable_2d_clicked.connect(_on_selectable_2d_clicked)
+
 	engine_namespace = data.namespace
 
 	PerfTiming.start(&'DoomMap.vertices')

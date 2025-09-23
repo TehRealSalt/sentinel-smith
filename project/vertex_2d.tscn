@@ -7,7 +7,10 @@ radius = 32.0
 
 [node name="DoomVertex2D" type="Area2D"]
 z_index = 1
+collision_layer = 2
 script = ExtResource("1_ychae")
 
 [node name="Collider" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_n246i")
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
