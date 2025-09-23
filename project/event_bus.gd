@@ -6,3 +6,5 @@ extends Node
 signal map_ready(file_name: String, map: DoomMap)
 
 signal request_output()
+
+signal selectable_2d_clicked(select: DoomSelectable2D)

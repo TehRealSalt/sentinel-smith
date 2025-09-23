@@ -12,8 +12,10 @@ func _on_entity_update() -> void:
 
 
 func _draw() -> void:
+	var col := Color.CORNFLOWER_BLUE
+
+	if highlighted:
+		col = Color.RED
+
 	var rect_size := Vector2(VERTEX_BOX_SIZE, VERTEX_BOX_SIZE)
-	draw_rect(
-		Rect2(-rect_size, rect_size * 2.0),
-		Color.CORNFLOWER_BLUE
-	)
+	draw_rect(Rect2(-rect_size, rect_size * 2.0), col)
