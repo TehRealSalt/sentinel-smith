@@ -1,4 +1,6 @@
-@abstract class_name DoomSelectable2D extends Area2D
+@abstract
+class_name DoomSelectable2D
+extends Area2D
 ## Represents a selectable [DoomEntity] as displayed in 2D mode.
 ## While [DoomEntity] handles the data of each entity, this class
 ## handles drawing and interacting with said data.
@@ -26,12 +28,9 @@ func update_properties() -> void:
 	queue_redraw()
 
 
-func _on_input_event(view: Viewport, ev: InputEvent, _shape_idx: int) -> void:
-	var button := (ev as InputEventMouseButton)
-	if button == null:
-		return
+func _on_mouse_entered() -> void:
+	EventBus.selectable_2d_entered.emit(self)
 
-	if button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
-		EventBus.selectable_2d_clicked.emit(self)
-		view.set_input_as_handled()
-		return
+
+func _on_mouse_exited() -> void:
+	EventBus.selectable_2d_exited.emit(self)
