@@ -1,40 +1,35 @@
-class_name MainUI extends Control
+class_name MainUI
+extends Control
 
 const MAP_TAB_SCENE := preload("res://map_container.tscn")
 const MAP_OUTPUT_SCENE := preload("res://output_window.tscn")
 
 @onready var map_tabs := (%MapTabContainer as TabContainer)
-
+@onready var file_dropdown := (%FileButton as MainDropdownFile)
 
 func _ready() -> void:
-	EventBus.map_ready.connect(_on_map_ready)
-	EventBus.request_output.connect(_on_request_output)
+	MapFileDialog.map_opened.connect(_on_map_ready)
+	file_dropdown.request_output.connect(_on_request_output)
 
 
 func _on_map_ready(file_name: String, map: DoomMap) -> void:
-	var map_tab := MAP_TAB_SCENE.instantiate() as Node
-
-	var view := map_tab.get_node('%Viewport') as SubViewport
-	view.add_child(map)
-
+	var map_tab := MAP_TAB_SCENE.instantiate() as MapContainer
 	map_tabs.add_child(map_tab)
 
+	map_tab.map = map
+
+	var tab_index: int = map_tabs.get_tab_count() - 1
 	var tab_title := ':'.join([file_name, map.map_name])
-	map_tabs.set_tab_title(map_tabs.get_tab_count() - 1, tab_title)
+	map_tabs.set_tab_title(tab_index, tab_title)
+	map_tabs.set_current_tab(tab_index)
 
 
 func _on_request_output() -> void:
-	var selected_tab := map_tabs.get_current_tab_control()
+	var selected_tab := map_tabs.get_current_tab_control() as MapContainer
 	if not selected_tab:
 		return
 
-	var view := selected_tab.get_node('%Viewport') as SubViewport
-	var map: DoomMap = null
-	for child in view.get_children():
-		if child is DoomMap:
-			map = child
-			break
-
+	var map: DoomMap = selected_tab.map
 	if not map:
 		return
 

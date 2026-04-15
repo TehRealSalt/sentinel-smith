@@ -47,3 +47,14 @@ func _entity_fields() -> Dictionary[StringName, EntityField]:
 		&"id": EntityField.new(^':tag', 0),
 		&"comment": EntityField.new(^':comment', ''),
 	}
+
+
+func get_drag_handles() -> Array[DoomDragHandle]:
+	var ret: Array[DoomDragHandle] = []
+	for side: DoomSidedef in sides:
+		var side_draggables: Array[DoomDragHandle] = side.get_drag_handles()
+		for draggable: DoomDragHandle in side_draggables:
+			if not draggable in ret:
+				ret.push_back(draggable)
+
+	return ret

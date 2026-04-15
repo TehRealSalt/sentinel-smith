@@ -1,5 +1,5 @@
 class_name DoomMap
-extends Node
+extends RefCounted
 
 ## This map's name, as specified by the empty header lump.
 var map_name: String = ""

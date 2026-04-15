@@ -20,7 +20,6 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-EventBus="*res://event_bus.gd"
 PerfTiming="*res://perf_timing.gd"
 MapFileDialog="*res://map_file_dialog.tscn"
 
@@ -70,5 +69,4 @@ window/subwindows/embed_subwindows=false
 
 [rendering]
 
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
+renderer/rendering_method="mobile"

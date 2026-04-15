@@ -27,6 +27,7 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="FileButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns" unique_id=1179650219]
+unique_name_in_owner = true
 layout_mode = 2
 text = "File"
 script = ExtResource("1_2ppmm")

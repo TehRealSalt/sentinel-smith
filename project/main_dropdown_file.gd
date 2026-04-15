@@ -1,4 +1,8 @@
+class_name MainDropdownFile
 extends MenuButton
+
+
+signal request_output()
 
 
 enum ItemID
@@ -26,7 +30,7 @@ func open_map_dialog() -> void:
 
 
 func create_map_output() -> void:
-	EventBus.request_output.emit()
+	request_output.emit()
 
 
 func _ready() -> void:

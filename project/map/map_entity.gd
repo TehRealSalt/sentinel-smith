@@ -1,6 +1,6 @@
 @abstract
 class_name DoomEntity
-extends Node
+extends RefCounted
 ## A UDMF map "entity". This is the base type that all map data inherits from.
 
 ## The [DoomMap] that we belong to.
@@ -42,6 +42,11 @@ func _entity_identifier() -> StringName
 ## and their default values. See also: [class EntityField].
 @abstract
 func _entity_fields() -> Dictionary[StringName, EntityField]
+
+
+## Returns the entities that need to move when dragged in a 2D view.
+@abstract
+func get_drag_handles() -> Array[DoomDragHandle]
 
 
 ## Returns our entity index in our [member map].
@@ -104,7 +109,6 @@ func _to_string() -> String:
 
 func _init(from_map: DoomMap, data: Dictionary) -> void:
 	map = from_map
-	map.add_child(self)
 
 	var fields := _entity_fields()
 
