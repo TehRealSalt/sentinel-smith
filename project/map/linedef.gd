@@ -277,19 +277,6 @@ func _entity_fields() -> Dictionary[StringName, EntityField]:
 		&"comment": EntityField.new(^':comment', ''),
 	}
 
-const DISPLAY_SCENE := preload("res://linedef_2d.tscn")
-var display: DoomLinedef2D = null
 
-
-func update_display() -> void:
-	if display == null:
-		display = DISPLAY_SCENE.instantiate()
-		display.entity = self
-		add_child(display)
-
-	display.update_properties()
-
-
-func _init(this_map: DoomMap, data: Dictionary) -> void:
-	super(this_map, data)
-	update_display()
+func get_drag_handles() -> Array[DoomDragHandle]:
+	return [v1, v2]

@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://ddxpivoo2gx2g"]
 
-[ext_resource type="Script" uid="uid://cclah7s2ysgno" path="res://map_viewport.gd" id="1_wl3j5"]
+[ext_resource type="Script" uid="uid://qr1gr3o7isto" path="res://map_container.gd" id="1_wl3j5"]
+[ext_resource type="PackedScene" uid="uid://dylwuko5yjdd1" path="res://map_view_2d.tscn" id="2_4rnhj"]
 
-[node name="MapViewContainer" type="SubViewportContainer" unique_id=84254571]
+[node name="MapContainer" type="Control" unique_id=1355333996]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -10,14 +12,8 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-stretch = true
-
-[node name="Viewport" type="SubViewport" parent="." unique_id=1596045855]
-unique_name_in_owner = true
-handle_input_locally = false
-physics_object_picking = true
-size = Vector2i(1280, 800)
-render_target_update_mode = 4
 script = ExtResource("1_wl3j5")
 
-[node name="Camera2D" type="Camera2D" parent="Viewport" unique_id=734120295]
+[node name="MapView2D" parent="." unique_id=1654353195 instance=ExtResource("2_4rnhj")]
+unique_name_in_owner = true
+layout_mode = 1

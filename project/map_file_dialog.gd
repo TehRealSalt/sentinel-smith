@@ -1,6 +1,10 @@
 extends FileDialog
 
 
+## Emits when a map file has been successfully opened.
+signal map_opened(file_name: String, map: DoomMap)
+
+
 func _on_file_selected(path: String) -> void:
 	Input.set_default_cursor_shape(Input.CURSOR_WAIT)
 
@@ -25,5 +29,5 @@ func _on_file_selected(path: String) -> void:
 		print("Could not load file '%s' as a map" % path)
 		return
 
-	EventBus.map_ready.emit(file_name, map)
+	map_opened.emit(file_name, map)
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)

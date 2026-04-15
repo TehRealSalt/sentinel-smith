@@ -1,15 +1,11 @@
 class_name DoomThing
-extends DoomEntity
+extends DoomDragHandle
 ## Represents a "thing" as it is in the UDMF specification.
 ## These are objects that are defined per configuration.
 
 
 ## This Thing's tag. Sometimes referred to by the UDMF spec as "ID".
 var tag: int = 0
-
-
-## This Thing's 2D position.
-var position: Vector2
 
 
 ## This Thing's Z offset, relative to the sector's floor or ceiling height.

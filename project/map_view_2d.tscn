@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://dylwuko5yjdd1"]
+
+[ext_resource type="Script" uid="uid://derxj5hy3tpjv" path="res://map_view_2d.gd" id="1_0c54w"]
+[ext_resource type="Script" uid="uid://5qhrjfjm2x1n" path="res://map_view_2d_static.gd" id="2_5iexo"]
+[ext_resource type="Script" uid="uid://ctvpnc47ji1nh" path="res://map_view_2d_dynamic.gd" id="3_325e1"]
+
+[node name="MapView2D" type="Control" unique_id=1654353195]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0c54w")
+
+[node name="Static" type="Node2D" parent="." unique_id=1788547376]
+unique_name_in_owner = true
+script = ExtResource("2_5iexo")
+
+[node name="Dynamic" type="Node2D" parent="." unique_id=1528776839]
+unique_name_in_owner = true
+script = ExtResource("3_325e1")
