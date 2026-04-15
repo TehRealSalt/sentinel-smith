@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://33cdq2sflgc8"]
+[gd_scene format=3 uid="uid://33cdq2sflgc8"]
 
 [ext_resource type="Script" uid="uid://dlonuprfuxvof" path="res://main_dropdown_file.gd" id="1_2ppmm"]
 [ext_resource type="Script" uid="uid://bibnrcph8k1v6" path="res://main_ui.gd" id="1_w37m7"]
 
-[node name="MainUI" type="Control"]
+[node name="MainUI" type="Control" unique_id=177434158]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_w37m7")
 
-[node name="MainContainer" type="VBoxContainer" parent="."]
+[node name="MainContainer" type="VBoxContainer" parent="." unique_id=1190598792]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,36 +20,36 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MainDropdownsPanel" type="PanelContainer" parent="MainContainer"]
+[node name="MainDropdownsPanel" type="PanelContainer" parent="MainContainer" unique_id=1013844209]
 layout_mode = 2
 
-[node name="MainDropdowns" type="HFlowContainer" parent="MainContainer/MainDropdownsPanel"]
+[node name="MainDropdowns" type="HFlowContainer" parent="MainContainer/MainDropdownsPanel" unique_id=1324188517]
 layout_mode = 2
 
-[node name="FileButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns"]
+[node name="FileButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns" unique_id=1179650219]
 layout_mode = 2
 text = "File"
 script = ExtResource("1_2ppmm")
 
-[node name="EditButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns"]
+[node name="EditButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns" unique_id=535203939]
 layout_mode = 2
 text = "Edit"
 item_count = 1
 popup/item_0/text = "TODO"
 popup/item_0/id = 0
 
-[node name="PrefsButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns"]
+[node name="PrefsButton" type="MenuButton" parent="MainContainer/MainDropdownsPanel/MainDropdowns" unique_id=1261415467]
 layout_mode = 2
 text = "Preferences"
 item_count = 1
 popup/item_0/text = "TODO"
 popup/item_0/id = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="MainContainer"]
+[node name="PanelContainer" type="PanelContainer" parent="MainContainer" unique_id=58936289]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MapTabContainer" type="TabContainer" parent="MainContainer/PanelContainer"]
+[node name="MapTabContainer" type="TabContainer" parent="MainContainer/PanelContainer" unique_id=1329187182]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
