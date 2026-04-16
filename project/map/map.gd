@@ -54,6 +54,108 @@ func get_entity_pointer(type: Script, index: int) -> DoomEntity:
 	return entity_type_to_array[type].get(index)
 
 
+## Find a single [DoomVertex] that is closest to the center of a circle.
+## [param radius_sqr] is the [i]squared[/i] distance of the circle's radius.
+func pick_vertex(world_pos: Vector2, radius_sqr: float) -> DoomVertex:
+	var best: DoomVertex = null
+	var best_dist: float = INF
+
+	for vertex: DoomVertex in vertices:
+		var dist: float = vertex.position.distance_squared_to(world_pos)
+		if dist < radius_sqr and dist < best_dist:
+			best = vertex
+			best_dist = dist
+
+	return best
+
+
+## Find a single [DoomLinedef] that is closest to the center of a circle.
+## [param radius_sqr] is the [i]squared[/i] distance of the circle's radius.
+func pick_line(world_pos: Vector2, radius_sqr: float) -> DoomLinedef:
+	var best: DoomLinedef = null
+	var best_dist: float = INF
+
+	for line: DoomLinedef in lines:
+		var p: Vector2 = Geometry2D.get_closest_point_to_segment(world_pos, line.v1.position, line.v2.position)
+		var dist: float = p.distance_squared_to(world_pos)
+		if dist < radius_sqr and dist < best_dist:
+			best = line
+			best_dist = dist
+
+	return best
+
+
+## Find a single [DoomThing] that is closest to the center of a circle.
+## [param radius_sqr] is the [i]squared[/i] distance of the circle's radius.
+func pick_thing(world_pos: Vector2, radius_sqr: float) -> DoomThing:
+	var best: DoomThing = null
+	var best_dist: float = INF
+
+	for thing: DoomThing in things:
+		var dist: float = thing.position.distance_squared_to(world_pos)
+		if dist < radius_sqr and dist < best_dist:
+			best = thing
+			best_dist = dist
+
+	return best
+
+
+## Find a single [DoomEntity] that is closest to the center of a circle.
+## [param radius_sqr] is the [i]squared[/i] distance of the circle's radius.
+## Priority is [DoomVertex] first, [DoomLinedef], then [DoomThing].
+func pick_entity(world_pos: Vector2, radius_sqr: float) -> DoomEntity:
+	var vertex := pick_vertex(world_pos, radius_sqr)
+	if vertex:
+		return vertex
+
+	var line := pick_line(world_pos, radius_sqr)
+	if line:
+		return line
+
+	var thing := pick_thing(world_pos, radius_sqr)
+	if thing:
+		return thing
+
+	return null
+
+
+## Gets every single [DoomVertex] within the given [Rect2].
+func pick_vertices_in_rect(world_rect: Rect2) -> Array[DoomVertex]:
+	var ret: Array[DoomVertex] = []
+	for vertex: DoomVertex in vertices:
+		if world_rect.has_point(vertex.position):
+			ret.push_back(vertex)
+	return ret
+
+
+## Gets every single [DoomLinedef] within the given [Rect2].
+func pick_lines_in_rect(world_rect: Rect2) -> Array[DoomLinedef]:
+	var ret: Array[DoomLinedef] = []
+	for line: DoomLinedef in lines:
+		# TODO: would a "fuzzier" select feel better?
+		if world_rect.has_point(line.v1.position) and world_rect.has_point(line.v2.position):
+			ret.push_back(line)
+	return ret
+
+
+## Gets every single [DoomThing] within the given [Rect2].
+func pick_things_in_rect(world_rect: Rect2) -> Array[DoomThing]:
+	var ret: Array[DoomThing] = []
+	for thing: DoomThing in things:
+		if world_rect.has_point(thing.position):
+			ret.push_back(thing)
+	return ret
+
+
+## Gets every single [DoomEntity] within the given [Rect2].
+func pick_entities_in_rect(world_rect: Rect2) -> Array[DoomEntity]:
+	var entities: Array[DoomEntity] = []
+	entities.append_array(pick_vertices_in_rect(world_rect))
+	entities.append_array(pick_lines_in_rect(world_rect))
+	entities.append_array(pick_things_in_rect(world_rect))
+	return entities
+
+
 ## Creates a [DoomMap] from a TEXTMAP [String].
 static func load_from_text(text: String) -> DoomMap:
 	var textmap := DoomTextmap.new(text)
