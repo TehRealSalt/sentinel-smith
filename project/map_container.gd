@@ -7,8 +7,8 @@ extends Control
 @onready var _view_2d: MapView2D = %MapView2D
 
 
-## Emits when grid size is changed for this map.
-signal grid_size_changed(new_grid: float)
+## Emits when grid settings are changed for this map.
+signal grid_changed()
 
 
 ## The map that this container represents.
@@ -31,11 +31,29 @@ var drag := MapDrag.new(self)
 var grid_size: float = 64.0:
 	set(v):
 		grid_size = v
-		grid_size_changed.emit(grid_size)
+		grid_changed.emit()
+
+
+## If grid snapping is enabled.
+var grid_snap_enabled: bool = true:
+	set(v):
+		grid_snap_enabled = v
+		grid_changed.emit()
+
+
+## If we want views to display the grid.
+var grid_visible: bool = true:
+	set(v):
+		grid_visible = v
+		grid_changed.emit()
 
 
 ## Returns a [Vector2] snapped to the grid.
+## If grid snap is off, returns the input, unchanged.
 func grid_snapped_vec(input: Vector2) -> Vector2:
+	if not grid_snap_enabled:
+		return input
+
 	return Vector2(
 		roundf(input.x / grid_size) * grid_size,
 		roundf(input.y / grid_size) * grid_size
@@ -52,6 +70,15 @@ func _unhandled_input(ev: InputEvent) -> void:
 			elif key.keycode == KEY_Y:
 				undo_redo.redo()
 				_view_2d.force_refresh()
+			elif key.keycode == KEY_G:
+				grid_snap_enabled = not grid_snap_enabled
+		elif key.shift_pressed:
+			if key.keycode == KEY_BRACKETLEFT:
+				grid_size *= 0.25
+			elif key.keycode == KEY_BRACKETRIGHT:
+				grid_size *= 4.0
+			elif key.keycode == KEY_G:
+				grid_visible = not grid_visible
 		else:
 			if key.keycode == KEY_BRACKETLEFT:
 				grid_size *= 0.5

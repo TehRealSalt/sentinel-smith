@@ -17,7 +17,7 @@ const MOUSE_TRESHOLD: float = 6.0
 var container: MapContainer = null:
 	set(v):
 		container = v
-		container.grid_size_changed.connect(_on_grid_size_change)
+		container.grid_changed.connect(_on_grid_change)
 		_grid.container = container
 		_static.container = container
 		_dynamic.container = container
@@ -36,7 +36,8 @@ var _view_drag: bool = false
 var _view_drag_pos: Vector2 = Vector2.ZERO
 
 
-func _on_grid_size_change(_new_grid: float) -> void:
+func _on_grid_change() -> void:
+	_grid.visible = container.grid_visible
 	_grid.queue_redraw()
 
 
