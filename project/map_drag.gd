@@ -20,7 +20,6 @@ func _init(p_container: MapContainer) -> void:
 
 func unset() -> void:
 	active = null
-	#Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	anchor_pos = Vector2.ZERO
 	handles.clear()
 	handle_origins.clear()
@@ -33,8 +32,6 @@ func start(control: Control, world_pos: Vector2) -> void:
 	unset()
 
 	active = control
-	#Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
 	anchor_pos = world_pos
 
 	for ent: DoomEntity in container.selection.entities:
@@ -53,7 +50,8 @@ func update(world_pos: Vector2) -> void:
 
 	var delta: Vector2 = world_pos - anchor_pos
 	for handle: DoomDragHandle in handles:
-		handle.position = handle_origins[handle] + delta
+		var new_pos: Vector2 = handle_origins[handle] + delta
+		handle.position = container.grid_snapped_vec(new_pos)
 
 
 func stop() -> void:
