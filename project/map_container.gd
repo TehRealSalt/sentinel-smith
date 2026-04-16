@@ -16,9 +16,12 @@ var undo_redo := UndoRedo.new()
 
 
 ## Our selection state.
-var selection := MapSelection.new()
+var selection := MapSelection.new(self)
+
+
+## Our drag state.
+var drag := MapDrag.new(self)
 
 
 func _ready() -> void:
-	selection.container = self
 	_view_2d.container = self

@@ -7,9 +7,10 @@ extends RefCounted
 ## Used for [method update].
 enum Modifiers
 {
-	TOGGLE,
 	ADD,
-	REMOVE
+	REMOVE,
+	REPLACE,
+	TOGGLE,
 }
 
 
@@ -19,6 +20,10 @@ var container: MapContainer = null
 
 ## All [DoomEntity] references that are considered selected.
 var entities: Array[DoomEntity] = []
+
+
+func _init(p_container: MapContainer) -> void:
+	container = p_container
 
 
 ## Returns if our selection is empty or not.
@@ -42,6 +47,9 @@ func has_any(hits: Array[DoomEntity]) -> bool:
 
 ## Returns if our selection contains ALL of a list of [DoomEntity].
 func has_all(hits: Array[DoomEntity]) -> bool:
+	if empty():
+		return false
+
 	for hit: DoomEntity in hits:
 		if not hit in entities:
 			return false
@@ -78,18 +86,23 @@ func toggle(hits: Array[DoomEntity]) -> void:
 		add(hits)
 
 
+## Handles replacing the selection state with a list of [DoomEntity].
+## If the list is empty, then the selection will be cleared.
+func replace(hits: Array[DoomEntity]) -> void:
+	clear()
+	if not hits.is_empty():
+		add(hits)
+
+
 ## Updates selection state, given a list of [DoomEntity].
 ## [param modifier] determines how to update the selection state.
-## If [param hits] is empty, then the selection will be cleared.
 func update(hits: Array[DoomEntity], modifier: Modifiers) -> void:
-	if hits.is_empty():
-		clear()
-		return
-
 	match modifier:
-		Modifiers.TOGGLE:
-			toggle(hits)
 		Modifiers.ADD:
 			add(hits)
 		Modifiers.REMOVE:
 			remove(hits)
+		Modifiers.REPLACE:
+			replace(hits)
+		Modifiers.TOGGLE:
+			toggle(hits)

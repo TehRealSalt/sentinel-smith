@@ -5,30 +5,30 @@ extends MapView2DLayer
 ## so that the majority of the map does not need to redraw constantly.
 
 
-func _draw_vertices() -> void:
+func _draw_vertices(whitelist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for v in container.map.vertices:
-		if not v in container.selection.entities:
+		if not whitelist.get(v, false):
 			continue
 
 		var c: Color = Color.RED if v in container.selection.entities else Color.WHITE
 		draw_map_vertex(v, c)
 
 
-func _draw_lines() -> void:
+func _draw_lines(whitelist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for l in container.map.lines:
-		if not l in container.selection.entities:
+		if not whitelist.get(l, false):
 			continue
 
 		var c: Color = Color.ORANGE if l in container.selection.entities else Color.WHITE
 		draw_map_line(l, c)
 
 
-func _draw_things() -> void:
+func _draw_things(whitelist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for th in container.map.things:
-		if not th in container.selection.entities:
+		if not whitelist.get(th, false):
 			continue
 
 		var c: Color = Color.ORANGE if th in container.selection.entities else Color.WHITE
@@ -39,6 +39,18 @@ func _draw() -> void:
 	if not (container and container.map):
 		return
 
-	_draw_lines()
-	_draw_vertices()
-	_draw_things()
+	var whitelist: Dictionary[DoomEntity, bool] = {}
+	for ent: DoomEntity in container.selection.entities:
+		var handles: Array[DoomDragHandle] = ent.get_drag_handles()
+		for handle: DoomDragHandle in handles:
+			whitelist[handle] = true
+			for dep: DoomEntity in handle.get_dependants():
+				whitelist[dep] = true
+
+	if whitelist.is_empty():
+		# Nothing to do
+		return
+
+	_draw_lines(whitelist)
+	_draw_vertices(whitelist)
+	_draw_things(whitelist)
