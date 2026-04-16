@@ -32,8 +32,26 @@ var transform := Transform2D():
 		_dynamic.transform = transform
 
 
+## Tracks if we are trying to do a marquee selection or not.
+var marquee_active: bool = false
+
+
+## The position of the starting corner of the marquee selection,
+## in world space.
+var marquee_start: Vector2 = Vector2.ZERO
+
+
+## The position of the final corner of the marquee selection,
+## in world space.
+var marquee_end: Vector2 = Vector2.ZERO
+
+
 var _view_drag: bool = false
 var _view_drag_pos: Vector2 = Vector2.ZERO
+
+
+var _drag_pending: bool = false
+var _drag_start_pos: Vector2 = Vector2.ZERO
 
 
 func _on_grid_change() -> void:
@@ -71,65 +89,6 @@ func _gui_view_drag(ev: InputEvent) -> void:
 			_view_drag_pos = motion.position
 
 
-func _pick_vertex(world_pos: Vector2, threshold_sqr: float) -> DoomVertex:
-	var best: DoomVertex = null
-	var best_dist: float = INF
-
-	for vertex in container.map.vertices:
-		var dist: float = vertex.position.distance_squared_to(world_pos)
-		if dist < threshold_sqr and dist < best_dist:
-			best = vertex
-			best_dist = dist
-
-	return best
-
-
-func _pick_line(world_pos: Vector2, threshold_sqr: float) -> DoomLinedef:
-	var best: DoomLinedef = null
-	var best_dist: float = INF
-
-	for line in container.map.lines:
-		var p: Vector2 = Geometry2D.get_closest_point_to_segment(world_pos, line.v1.position, line.v2.position)
-		var dist: float = p.distance_squared_to(world_pos)
-		if dist < threshold_sqr and dist < best_dist:
-			best = line
-			best_dist = dist
-
-	return best
-
-
-func _pick_thing(world_pos: Vector2, threshold_sqr: float) -> DoomThing:
-	var best: DoomThing = null
-	var best_dist: float = INF
-
-	for thing in container.map.things:
-		var dist: float = thing.position.distance_squared_to(world_pos)
-		if dist < threshold_sqr and dist < best_dist:
-			best = thing
-			best_dist = dist
-
-	return best
-
-
-func _pick(world_pos: Vector2, threshold_sqr: float) -> Array[DoomEntity]:
-	var vertex := _pick_vertex(world_pos, threshold_sqr)
-	if vertex:
-		return [vertex]
-
-	var line := _pick_line(world_pos, threshold_sqr)
-	if line:
-		return [line]
-
-	var thing := _pick_thing(world_pos, threshold_sqr)
-	if thing:
-		return [thing]
-
-	return []
-
-
-var _drag_pending: bool = false
-var _drag_start_pos: Vector2 = Vector2.ZERO
-
 func _gui_drag(ev: InputEvent) -> void:
 	var mb := ev as InputEventMouseButton
 	if mb and mb.button_index == MOUSE_BUTTON_LEFT:
@@ -146,9 +105,41 @@ func _gui_drag(ev: InputEvent) -> void:
 		_dynamic.queue_redraw()
 
 
+func _gui_marquee(ev: InputEvent) -> void:
+	var mb := ev as InputEventMouseButton
+	if mb and mb.button_index == MOUSE_BUTTON_LEFT:
+		if not mb.pressed:
+			marquee_active = false
+
+			var rect := Rect2(marquee_start, marquee_end - marquee_start).abs()
+			var threshold: float = MOUSE_TRESHOLD / transform.get_scale().x
+			rect.grow(threshold)
+
+			var hits: Array[DoomEntity] = container.map.pick_entities_in_rect(rect)
+			var mod: MapSelection.Modifiers = MapSelection.Modifiers.REPLACE
+			if mb.shift_pressed:
+				mod = MapSelection.Modifiers.ADD
+			elif mb.ctrl_pressed:
+				mod = MapSelection.Modifiers.TOGGLE
+			container.selection.update(hits, mod)
+
+			_static.queue_redraw()
+			_dynamic.queue_redraw()
+			return
+
+	var motion := ev as InputEventMouseMotion
+	if motion:
+		marquee_end = transform.affine_inverse() * motion.position
+		_dynamic.queue_redraw()
+
+
 func _gui_pick(ev: InputEvent) -> void:
 	if container.drag.active == self:
 		_gui_drag(ev)
+		return
+
+	if marquee_active:
+		_gui_marquee(ev)
 		return
 
 	var threshold: float = MOUSE_TRESHOLD / transform.get_scale().x
@@ -158,18 +149,22 @@ func _gui_pick(ev: InputEvent) -> void:
 	if mb and mb.button_index == MOUSE_BUTTON_LEFT:
 		var world_pos: Vector2 = transform.affine_inverse() * mb.position
 		if mb.pressed:
-			var hits: Array[DoomEntity] = _pick(world_pos, threshold_sqr)
+			var hit: DoomEntity = container.map.pick_entity(world_pos, threshold_sqr)
 			var mod: MapSelection.Modifiers = MapSelection.Modifiers.REPLACE
 			if mb.shift_pressed:
 				mod = MapSelection.Modifiers.ADD
 			elif mb.ctrl_pressed:
 				mod = MapSelection.Modifiers.TOGGLE
 
-			container.selection.update(hits, mod)
+			var arr: Array[DoomEntity] = []
+			if hit:
+				arr = [hit]
+
+			container.selection.update(arr, mod)
 			_static.queue_redraw()
 			_dynamic.queue_redraw()
 
-			if container.selection.has_all(hits):
+			if hit == null or container.selection.has_all(arr):
 				_drag_pending = true
 				_drag_start_pos = world_pos
 			else:
@@ -180,10 +175,15 @@ func _gui_pick(ev: InputEvent) -> void:
 	if _drag_pending:
 		var motion := ev as InputEventMouseMotion
 		if motion:
-			var delta := motion.position - _drag_start_pos
+			var world_pos: Vector2 = transform.affine_inverse() * motion.position
+			var delta := world_pos - _drag_start_pos
 			if delta.length_squared() > threshold_sqr:
-				var world_pos: Vector2 = transform.affine_inverse() * motion.position
-				container.drag.start(self, world_pos)
+				if container.selection.empty():
+					marquee_active = true
+					marquee_start = _drag_start_pos
+				else:
+					container.drag.start(self, _drag_start_pos)
+					marquee_active = false
 				_drag_pending = false
 
 
@@ -194,5 +194,8 @@ func _gui_input(ev: InputEvent) -> void:
 
 
 func _ready() -> void:
+	_static.view = self
+	_dynamic.view = self
+
 	# Doom map coordinates have flipped Y
 	transform = transform.scaled(Vector2(1.0, -1.0))

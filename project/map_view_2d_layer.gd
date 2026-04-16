@@ -8,6 +8,10 @@ extends Node2D
 var container: MapContainer = null
 
 
+## The [MapView2D] that this layer is for.
+var view: MapView2D = null
+
+
 const DASHED_TRANSPARENT: float = 0.2
 
 ## Handles basic drawing of an arbitrary [DoomVertex].
