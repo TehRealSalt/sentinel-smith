@@ -44,7 +44,10 @@ func _entity_identifier() -> StringName
 func _entity_fields() -> Dictionary[StringName, EntityField]
 
 
-## Returns the entities that need to move when dragged in a 2D view.
+## Returns the entities that need to move when dragged.
+## This is needed since lines & sectors are all based on
+## the positions of their vertices, not anything stored on
+## themselves directly.
 @abstract
 func get_drag_handles() -> Array[DoomDragHandle]
 

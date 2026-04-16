@@ -5,7 +5,7 @@ extends Control
 
 ## The number of pixels, in screen-space, that we are allowed
 ## to select entities from.
-const PICK_THRESHOLD_SCREEN: float = 8.0
+const MOUSE_TRESHOLD: float = 6.0
 
 
 @onready var _static: MapView2DStatic = %Static
@@ -112,18 +112,65 @@ func _pick(world_pos: Vector2, threshold_sqr: float) -> Array[DoomEntity]:
 	return []
 
 
-func _gui_pick(ev: InputEvent) -> void:
-	var mouse_btn := ev as InputEventMouseButton
-	if mouse_btn and mouse_btn.button_index == MOUSE_BUTTON_LEFT and mouse_btn.pressed:
-		var world_pos: Vector2 = transform.affine_inverse() * mouse_btn.position
-		var pick_threshold: float = PICK_THRESHOLD_SCREEN / transform.get_scale().x
-		var pick_threshold_sqr: float = pick_threshold * pick_threshold
+var _drag_pending: bool = false
+var _drag_start_pos: Vector2 = Vector2.ZERO
 
-		var hits: Array[DoomEntity] = _pick(world_pos, pick_threshold_sqr)
-		container.selection.update(hits, MapSelection.Modifiers.TOGGLE)
+func _gui_drag(ev: InputEvent) -> void:
+	var mb := ev as InputEventMouseButton
+	if mb and mb.button_index == MOUSE_BUTTON_LEFT:
+		if not mb.pressed:
+			container.drag.stop()
+			_static.queue_redraw()
+			_dynamic.queue_redraw()
+			return
 
-		_static.queue_redraw()
+	var motion := ev as InputEventMouseMotion
+	if motion:
+		var world_pos: Vector2 = transform.affine_inverse() * motion.position
+		container.drag.update(world_pos)
 		_dynamic.queue_redraw()
+
+
+func _gui_pick(ev: InputEvent) -> void:
+	if container.drag.active == self:
+		_gui_drag(ev)
+		return
+
+	var threshold: float = MOUSE_TRESHOLD / transform.get_scale().x
+	var threshold_sqr: float = threshold * threshold
+
+	var mb := ev as InputEventMouseButton
+	if mb and mb.button_index == MOUSE_BUTTON_LEFT:
+		var world_pos: Vector2 = transform.affine_inverse() * mb.position
+		if mb.pressed:
+			var hits: Array[DoomEntity] = _pick(world_pos, threshold_sqr)
+			var has_before: bool = container.selection.has_all(hits)
+
+			var mod: MapSelection.Modifiers = MapSelection.Modifiers.REPLACE
+			if mb.shift_pressed:
+				mod = MapSelection.Modifiers.ADD
+			elif mb.ctrl_pressed:
+				mod = MapSelection.Modifiers.TOGGLE
+
+			container.selection.update(hits, mod)
+			_static.queue_redraw()
+			_dynamic.queue_redraw()
+
+			var has_after: bool = container.selection.has_all(hits)
+			if has_before and has_after:
+				_drag_pending = true
+				_drag_start_pos = world_pos
+			else:
+				_drag_pending = false
+
+	if _drag_pending:
+		var motion := ev as InputEventMouseMotion
+		if motion:
+			var delta := motion.position - _drag_start_pos
+			if delta.length_squared() > threshold_sqr:
+				var world_pos: Vector2 = transform.affine_inverse() * motion.position
+				container.drag.start(self, world_pos)
+				_drag_pending = false
 
 
 func _gui_input(ev: InputEvent) -> void:

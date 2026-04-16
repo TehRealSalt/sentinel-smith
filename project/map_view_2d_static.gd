@@ -7,28 +7,39 @@ extends MapView2DLayer
 ## to draw too much at once.
 
 
-func _draw_vertices() -> void:
+func _draw_vertices(blacklist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for v in container.map.vertices:
-		draw_map_vertex(v)
+		var blacklisted: bool = blacklist.get(v, false)
+		draw_map_vertex(v, Color.WHITE, blacklisted)
 
 
-func _draw_lines() -> void:
+func _draw_lines(blacklist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for l in container.map.lines:
-		draw_map_line(l)
+		var blacklisted: bool = blacklist.get(l, false)
+		draw_map_line(l, Color.WHITE, blacklisted)
 
 
-func _draw_things() -> void:
+func _draw_things(blacklist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for th in container.map.things:
-		draw_map_thing(th)
+		var blacklisted: bool = blacklist.get(th, false)
+		draw_map_thing(th, Color.WHITE, blacklisted)
 
 
 func _draw() -> void:
 	if not (container and container.map):
 		return
 
-	_draw_lines()
-	_draw_vertices()
-	_draw_things()
+	var blacklist: Dictionary[DoomEntity, bool] = {}
+	for ent: DoomEntity in container.selection.entities:
+		var handles: Array[DoomDragHandle] = ent.get_drag_handles()
+		for handle: DoomDragHandle in handles:
+			blacklist[handle] = true
+			for dep: DoomEntity in handle.get_dependants():
+				blacklist[dep] = true
+
+	_draw_lines(blacklist)
+	_draw_vertices(blacklist)
+	_draw_things(blacklist)

@@ -21,3 +21,19 @@ func _entity_fields() -> Dictionary[StringName, EntityField]:
 		&"x": EntityField.new(^':position:x', null),
 		&"y": EntityField.new(^':position:y', null),
 	}
+
+
+func get_dependants() -> Array[DoomEntity]:
+	var ret: Array[DoomEntity] = []
+
+	for line: DoomLinedef in lines:
+		ret.push_back(line)
+
+		ret.push_back(line.side_front)
+		ret.push_back(line.side_front.sector)
+
+		if line.side_back:
+			ret.push_back(line.side_back)
+			ret.push_back(line.side_back.sector)
+
+	return ret

@@ -11,3 +11,10 @@ var position: Vector2
 func get_drag_handles() -> Array[DoomDragHandle]:
 	# We ARE the draggable.
 	return [self]
+
+
+## Returns an array of entities that moving this entity would also affect.
+## This is needed for drawing entities in static / dynamic layers.
+func get_dependants() -> Array[DoomEntity]:
+	# By default, no dependants.
+	return []
