@@ -8,6 +8,7 @@ extends Control
 const MOUSE_TRESHOLD: float = 6.0
 
 
+@onready var _grid: MapView2DGrid = %Grid
 @onready var _static: MapView2DStatic = %Static
 @onready var _dynamic: MapView2DDynamic = %Dynamic
 
@@ -16,6 +17,8 @@ const MOUSE_TRESHOLD: float = 6.0
 var container: MapContainer = null:
 	set(v):
 		container = v
+		container.grid_size_changed.connect(_on_grid_size_change)
+		_grid.container = container
 		_static.container = container
 		_dynamic.container = container
 
@@ -24,12 +27,17 @@ var container: MapContainer = null:
 var transform := Transform2D():
 	set(v):
 		transform = v
+		_grid.transform = transform
 		_static.transform = transform
 		_dynamic.transform = transform
 
 
 var _view_drag: bool = false
 var _view_drag_pos: Vector2 = Vector2.ZERO
+
+
+func _on_grid_size_change(_new_grid: float) -> void:
+	_grid.queue_redraw()
 
 
 func _gui_zoom(ev: InputEvent) -> void:
@@ -144,8 +152,6 @@ func _gui_pick(ev: InputEvent) -> void:
 		var world_pos: Vector2 = transform.affine_inverse() * mb.position
 		if mb.pressed:
 			var hits: Array[DoomEntity] = _pick(world_pos, threshold_sqr)
-			var has_before: bool = container.selection.has_all(hits)
-
 			var mod: MapSelection.Modifiers = MapSelection.Modifiers.REPLACE
 			if mb.shift_pressed:
 				mod = MapSelection.Modifiers.ADD
@@ -156,12 +162,13 @@ func _gui_pick(ev: InputEvent) -> void:
 			_static.queue_redraw()
 			_dynamic.queue_redraw()
 
-			var has_after: bool = container.selection.has_all(hits)
-			if has_before and has_after:
+			if container.selection.has_all(hits):
 				_drag_pending = true
 				_drag_start_pos = world_pos
 			else:
 				_drag_pending = false
+		else:
+			_drag_pending = false
 
 	if _drag_pending:
 		var motion := ev as InputEventMouseMotion
