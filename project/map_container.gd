@@ -45,10 +45,18 @@ func grid_snapped_vec(input: Vector2) -> Vector2:
 func _unhandled_input(ev: InputEvent) -> void:
 	var key := ev as InputEventKey
 	if key and key.pressed:
-		if key.keycode == KEY_MINUS:
-			grid_size *= 0.5
-		elif key.keycode == KEY_EQUAL:
-			grid_size *= 2.0
+		if key.ctrl_pressed:
+			if key.keycode == KEY_Z:
+				undo_redo.undo()
+				_view_2d.force_refresh()
+			elif key.keycode == KEY_Y:
+				undo_redo.redo()
+				_view_2d.force_refresh()
+		else:
+			if key.keycode == KEY_BRACKETLEFT:
+				grid_size *= 0.5
+			elif key.keycode == KEY_BRACKETRIGHT:
+				grid_size *= 2.0
 
 
 func _ready() -> void:

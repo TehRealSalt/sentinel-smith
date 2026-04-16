@@ -40,6 +40,12 @@ func _on_grid_size_change(_new_grid: float) -> void:
 	_grid.queue_redraw()
 
 
+func force_refresh() -> void:
+	_grid.queue_redraw()
+	_static.queue_redraw()
+	_dynamic.queue_redraw()
+
+
 func _gui_zoom(ev: InputEvent) -> void:
 	var mouse_btn := ev as InputEventMouseButton
 	if mouse_btn and mouse_btn.pressed:
