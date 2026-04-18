@@ -5,7 +5,15 @@ extends DoomEntity
 
 
 ## This entity's 2D position.
-var position: Vector2
+var position: Vector2:
+	set(v):
+		position = v
+		_moved()
+
+
+## Called when the [DoomDragHandle] has been moved.
+func _moved() -> void:
+	pass
 
 
 func get_drag_handles() -> Array[DoomDragHandle]:

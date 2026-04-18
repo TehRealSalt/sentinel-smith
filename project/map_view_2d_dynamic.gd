@@ -25,6 +25,16 @@ func _draw_lines(whitelist: Dictionary[DoomEntity, bool]) -> void:
 		draw_map_line(l, c)
 
 
+func _draw_sectors(whitelist: Dictionary[DoomEntity, bool]) -> void:
+	assert(container.map)
+	for s in container.map.sectors:
+		if not whitelist.get(s, false):
+			continue
+
+		var c: Color = Color.ORANGE if s in container.selection.entities else Color.WHITE
+		draw_map_sector(s, c)
+
+
 func _draw_things(whitelist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for th in container.map.things:
@@ -48,6 +58,7 @@ func _draw() -> void:
 				whitelist[dep] = true
 
 	if not whitelist.is_empty():
+		_draw_sectors(whitelist)
 		_draw_lines(whitelist)
 		_draw_vertices(whitelist)
 		_draw_things(whitelist)

@@ -21,6 +21,14 @@ func _draw_lines(blacklist: Dictionary[DoomEntity, bool]) -> void:
 		draw_map_line(l, Color.WHITE, blacklisted)
 
 
+func _draw_sectors(blacklist: Dictionary[DoomEntity, bool]) -> void:
+	assert(container.map)
+	for s in container.map.sectors:
+		if blacklist.get(s, false):
+			continue
+		draw_map_sector(s, Color.WHITE)
+
+
 func _draw_things(blacklist: Dictionary[DoomEntity, bool]) -> void:
 	assert(container.map)
 	for th in container.map.things:
@@ -40,6 +48,7 @@ func _draw() -> void:
 			for dep: DoomEntity in handle.get_dependants():
 				blacklist[dep] = true
 
+	_draw_sectors(blacklist)
 	_draw_lines(blacklist)
 	_draw_vertices(blacklist)
 	_draw_things(blacklist)

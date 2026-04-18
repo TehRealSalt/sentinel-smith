@@ -37,3 +37,11 @@ func get_dependants() -> Array[DoomEntity]:
 			ret.push_back(line.side_back.sector)
 
 	return ret
+
+
+func _moved() -> void:
+	var deps: Array[DoomEntity] = get_dependants()
+	for ent: DoomEntity in deps:
+		var sec := ent as DoomSector
+		if sec:
+			sec.geometry_cache.invalidate()
