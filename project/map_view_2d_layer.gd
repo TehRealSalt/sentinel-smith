@@ -44,6 +44,27 @@ func draw_map_line(line: DoomLinedef, color: Color = Color.WHITE, dashed: bool =
 		draw_line(center, center + (line.normal() * LINE_NORMAL_SIZE), color, -1.0)
 
 
+## Handles basic drawing of an arbitrary [DoomSector].
+func draw_map_sector(sector: DoomSector, color: Color = Color.WHITE) -> void:
+	assert(sector)
+	sector.geometry_cache.validate()
+
+	color.a *= DASHED_TRANSPARENT * DASHED_TRANSPARENT
+
+	for poly: DoomSectorGeometryCache.Polygon in sector.geometry_cache.polygons:
+		# overcomplicated, but it's so that we can cache the
+		# triangulation process instead of requiring the
+		# drawer to do this
+		for t: int in range(0, poly.triangles.size(), 3):
+			var tri_polygon := PackedVector2Array([
+				poly.points[poly.triangles[t]],
+				poly.points[poly.triangles[t + 1]],
+				poly.points[poly.triangles[t + 2]]
+			])
+			# TODO: move to RenderingServer.canvas_item_add_triangle_array()
+			draw_colored_polygon(tri_polygon, color)
+
+
 ## Handles basic drawing of an arbitrary [DoomThing].
 func draw_map_thing(thing: DoomThing, color: Color = Color.WHITE, dashed: bool = false) -> void:
 	assert(thing)

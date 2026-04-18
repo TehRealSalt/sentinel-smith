@@ -32,6 +32,10 @@ var tag: int = 0
 var sides: Array[DoomSidedef] = []
 
 
+## Our [DoomSectorGeometryCache].
+var geometry_cache := DoomSectorGeometryCache.new(self)
+
+
 func _entity_identifier() -> StringName:
 	return &"sector"
 
