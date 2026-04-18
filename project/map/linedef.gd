@@ -222,6 +222,7 @@ var side_front: DoomSidedef = null:
 		if new_side != null:
 			new_side.lines.append(self)
 		side_front = new_side
+		assert(new_side)
 
 
 ## The back [DoomSidedef] of this line.
@@ -233,6 +234,18 @@ var side_back: DoomSidedef = null:
 		if new_side != null:
 			new_side.lines.append(self)
 		side_back = new_side
+
+
+## Gets the average of [member v1] and [member v2]'s positions.
+func center() -> Vector2:
+	return (v1.position + v2.position) * 0.5
+
+
+## Gets this line's normal. This is always clockwise
+## from the delta of [member v1] and [member v2].
+func normal() -> Vector2:
+	var delta: Vector2 = v2.position - v1.position
+	return Vector2(delta.y, -delta.x).normalized()
 
 
 func _entity_identifier() -> StringName:
