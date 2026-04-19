@@ -70,7 +70,7 @@ func draw_map_sector(sector: DoomSector, color: Color = Color.WHITE) -> void:
 ## Handles basic drawing of an arbitrary [DoomThing].
 func draw_map_thing(thing: DoomThing, color: Color = Color.WHITE, dashed: bool = false) -> void:
 	assert(thing)
-	var size := Vector2.ONE * 16.0
+	var size := Vector2.ONE * DoomThing.TEMP_RADIUS
 	var rect := Rect2(thing.position - size, size * 2.0)
 	if dashed:
 		color.a *= DASHED_TRANSPARENT
