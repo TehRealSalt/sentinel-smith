@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://qr1gr3o7isto" path="res://map_container.gd" id="1_wl3j5"]
 [ext_resource type="PackedScene" uid="uid://dylwuko5yjdd1" path="res://map_view_2d.tscn" id="2_4rnhj"]
 
+[sub_resource type="ButtonGroup" id="ButtonGroup_4rnhj"]
+
 [node name="MapContainer" type="Control" unique_id=1355333996]
 layout_mode = 3
 anchors_preset = 15
@@ -14,6 +16,48 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_wl3j5")
 
-[node name="MapView2D" parent="." unique_id=1654353195 instance=ExtResource("2_4rnhj")]
-unique_name_in_owner = true
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1881870726]
 layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HFlowContainer" type="HFlowContainer" parent="VBoxContainer" unique_id=362033437]
+layout_mode = 2
+
+[node name="VerticesButton" type="Button" parent="VBoxContainer/HFlowContainer" unique_id=1168645636]
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_4rnhj")
+text = "Vertices"
+
+[node name="LinesButton" type="Button" parent="VBoxContainer/HFlowContainer" unique_id=1848463803]
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_4rnhj")
+text = "Lines"
+
+[node name="SectorsButton" type="Button" parent="VBoxContainer/HFlowContainer" unique_id=1984076177]
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_4rnhj")
+text = "Sectors"
+
+[node name="ThingsButton" type="Button" parent="VBoxContainer/HFlowContainer" unique_id=548576803]
+layout_mode = 2
+toggle_mode = true
+button_group = SubResource("ButtonGroup_4rnhj")
+text = "Things"
+
+[node name="MapView2D" parent="VBoxContainer" unique_id=1654353195 instance=ExtResource("2_4rnhj")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+
+[connection signal="toggled" from="VBoxContainer/HFlowContainer/VerticesButton" to="." method="_on_vertices_button_toggled"]
+[connection signal="toggled" from="VBoxContainer/HFlowContainer/LinesButton" to="." method="_on_lines_button_toggled"]
+[connection signal="toggled" from="VBoxContainer/HFlowContainer/SectorsButton" to="." method="_on_sectors_button_toggled"]
+[connection signal="toggled" from="VBoxContainer/HFlowContainer/ThingsButton" to="." method="_on_things_button_toggled"]
