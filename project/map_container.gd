@@ -27,6 +27,21 @@ var selection := MapSelection.new(self)
 var drag := MapDrag.new(self)
 
 
+## The distinct modes of editing, each representing
+## a type of [DoomEntity] that can be selected.
+enum EditMode
+{
+	VERTICES,
+	LINES,
+	SECTORS,
+	THINGS
+}
+
+
+## The currently selected editing mode.
+var mode: EditMode = EditMode.VERTICES
+
+
 ## This tab's editing grid size.
 var grid_size: float = 64.0:
 	set(v):
@@ -88,3 +103,23 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 func _ready() -> void:
 	_view_2d.container = self
+
+
+func _on_vertices_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		mode = EditMode.VERTICES
+
+
+func _on_lines_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		mode = EditMode.LINES
+
+
+func _on_sectors_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		mode = EditMode.SECTORS
+
+
+func _on_things_button_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		mode = EditMode.THINGS
