@@ -26,7 +26,7 @@ func _draw_sectors(blacklist: Dictionary[DoomEntity, bool]) -> void:
 	for s in container.map.sectors:
 		if blacklist.get(s, false):
 			continue
-		draw_map_sector(s, Color.WHITE)
+		draw_map_sector(s, Color.DIM_GRAY)
 
 
 func _draw_things(blacklist: Dictionary[DoomEntity, bool]) -> void:

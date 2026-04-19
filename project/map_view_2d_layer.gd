@@ -49,7 +49,7 @@ func draw_map_sector(sector: DoomSector, color: Color = Color.WHITE) -> void:
 	assert(sector)
 	sector.geometry_cache.validate()
 
-	color.a *= DASHED_TRANSPARENT * DASHED_TRANSPARENT
+	color.a *= 0.5
 
 	for poly: DoomSectorGeometryCache.Polygon in sector.geometry_cache.polygons:
 		# overcomplicated, but it's so that we can cache the
@@ -68,7 +68,7 @@ func draw_map_sector(sector: DoomSector, color: Color = Color.WHITE) -> void:
 ## Handles basic drawing of an arbitrary [DoomThing].
 func draw_map_thing(thing: DoomThing, color: Color = Color.WHITE, dashed: bool = false) -> void:
 	assert(thing)
-	var size := Vector2.ONE * 8.0
+	var size := Vector2.ONE * 16.0
 	var rect := Rect2(thing.position - size, size * 2.0)
 	if dashed:
 		color.a *= DASHED_TRANSPARENT

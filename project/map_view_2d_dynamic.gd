@@ -31,7 +31,7 @@ func _draw_sectors(whitelist: Dictionary[DoomEntity, bool]) -> void:
 		if not whitelist.get(s, false):
 			continue
 
-		var c: Color = Color.ORANGE if s in container.selection.entities else Color.WHITE
+		var c: Color = Color.ORANGE if s in container.selection.entities else Color.DIM_GRAY
 		draw_map_sector(s, c)
 
 
