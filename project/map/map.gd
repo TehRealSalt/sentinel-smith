@@ -100,9 +100,18 @@ func pick_thing(world_pos: Vector2, radius_sqr: float) -> DoomThing:
 	return best
 
 
+## Find a single [DoomSector] that is at a specific point, in world space.
+func pick_sector(world_pos: Vector2) -> DoomSector:
+	for sector: DoomSector in sectors:
+		if sector.geometry_cache.test_point(world_pos):
+			return sector
+
+	return null
+
+
 ## Find a single [DoomEntity] that is closest to the center of a circle.
 ## [param radius_sqr] is the [i]squared[/i] distance of the circle's radius.
-## Priority is [DoomVertex] first, [DoomLinedef], then [DoomThing].
+## Priority is [DoomVertex] first, [DoomLinedef], [DoomThing], then [DoomSector].
 func pick_entity(world_pos: Vector2, radius_sqr: float) -> DoomEntity:
 	var vertex := pick_vertex(world_pos, radius_sqr)
 	if vertex:
@@ -115,6 +124,10 @@ func pick_entity(world_pos: Vector2, radius_sqr: float) -> DoomEntity:
 	var thing := pick_thing(world_pos, radius_sqr)
 	if thing:
 		return thing
+
+	var sector := pick_sector(world_pos)
+	if sector:
+		return sector
 
 	return null
 
@@ -147,12 +160,22 @@ func pick_things_in_rect(world_rect: Rect2) -> Array[DoomThing]:
 	return ret
 
 
+## Gets every single [DoomSector] within the given [Rect2].
+func pick_sectors_in_rect(world_rect: Rect2) -> Array[DoomSector]:
+	var ret: Array[DoomSector] = []
+	for sector: DoomSector in sectors:
+		if sector.geometry_cache.test_rect(world_rect):
+			ret.push_back(sector)
+	return ret
+
+
 ## Gets every single [DoomEntity] within the given [Rect2].
 func pick_entities_in_rect(world_rect: Rect2) -> Array[DoomEntity]:
 	var entities: Array[DoomEntity] = []
 	entities.append_array(pick_vertices_in_rect(world_rect))
 	entities.append_array(pick_lines_in_rect(world_rect))
 	entities.append_array(pick_things_in_rect(world_rect))
+	entities.append_array(pick_sectors_in_rect(world_rect))
 	return entities
 
 
