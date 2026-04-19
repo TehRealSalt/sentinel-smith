@@ -88,14 +88,20 @@ func pick_line(world_pos: Vector2, radius_sqr: float) -> DoomLinedef:
 ## Find a single [DoomThing] that is closest to the center of a circle.
 ## [param radius_sqr] is the [i]squared[/i] distance of the circle's radius.
 func pick_thing(world_pos: Vector2, radius_sqr: float) -> DoomThing:
+	var radius: float = sqrt(radius_sqr)
+
 	var best: DoomThing = null
 	var best_dist: float = INF
 
 	for thing: DoomThing in things:
-		var dist: float = thing.position.distance_squared_to(world_pos)
-		if dist < radius_sqr and dist < best_dist:
-			best = thing
-			best_dist = dist
+		var size := Vector2.ONE * DoomThing.TEMP_RADIUS
+		var rect := Rect2(thing.position - size, size * 2.0)
+		rect.grow(radius)
+		if rect.has_point(world_pos):
+			var dist: float = thing.position.distance_squared_to(world_pos)
+			if dist < best_dist:
+				best = thing
+				best_dist = dist
 
 	return best
 

@@ -4,6 +4,10 @@ extends DoomDragHandle
 ## These are objects that are defined per configuration.
 
 
+## Temporary value for the size of this Thing.
+const TEMP_RADIUS: float = 16.0 # TODO: Implement thing config reading
+
+
 ## This Thing's tag. Sometimes referred to by the UDMF spec as "ID".
 var tag: int = 0
 
