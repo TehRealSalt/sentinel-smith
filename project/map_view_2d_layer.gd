@@ -12,6 +12,10 @@ var container: MapContainer = null
 var view: MapView2D = null
 
 
+## How big to draw vertices.
+const VERTEX_SIZE: float = 4.0
+
+
 ## How big to draw line normal indicators, in world space.
 const LINE_NORMAL_SIZE: float = 8.0
 
@@ -24,11 +28,9 @@ const DASHED_TRANSPARENT: float = 0.2
 ## Handles basic drawing of an arbitrary [DoomVertex].
 func draw_map_vertex(vertex: DoomVertex, color: Color = Color.WHITE, dashed: bool = false) -> void:
 	assert(vertex)
-	var size := Vector2.ONE * 2.0
-	var rect := Rect2(vertex.position - size, size * 2.0)
 	if dashed:
 		color.a *= DASHED_TRANSPARENT
-	draw_rect(rect, color, false)
+	draw_circle(vertex.position, VERTEX_SIZE, color, not dashed)
 
 
 ## Handles basic drawing of an arbitrary [DoomLinedef].
