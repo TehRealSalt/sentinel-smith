@@ -12,6 +12,10 @@ var container: MapContainer = null
 var view: MapView2D = null
 
 
+## Quick pointer to our [RID] for [RenderingServer] functions.
+@onready var rid: RID = get_canvas_item()
+
+
 ## How big to draw vertices.
 const VERTEX_SIZE: float = 4.0
 
@@ -30,7 +34,12 @@ func draw_map_vertex(vertex: DoomVertex, color: Color = Color.WHITE, dashed: boo
 	assert(vertex)
 	if dashed:
 		color.a *= DASHED_TRANSPARENT
-	draw_circle(vertex.position, VERTEX_SIZE, color, not dashed)
+	RenderingServer.canvas_item_add_circle(
+		rid,
+		vertex.position,
+		VERTEX_SIZE,
+		color
+	) # not dashed
 
 
 ## Handles basic drawing of an arbitrary [DoomLinedef].
@@ -42,8 +51,18 @@ func draw_map_line(line: DoomLinedef, color: Color = Color.WHITE, dashed: bool =
 		draw_dashed_line(line.v1.position, line.v2.position, color, -1.0)
 		draw_dashed_line(center, center + (line.normal() * LINE_NORMAL_SIZE), color, -1.0)
 	else:
-		draw_line(line.v1.position, line.v2.position, color, -1.0)
-		draw_line(center, center + (line.normal() * LINE_NORMAL_SIZE), color, -1.0)
+		RenderingServer.canvas_item_add_line(
+			rid,
+			line.v1.position,
+			line.v2.position,
+			color
+		)
+		RenderingServer.canvas_item_add_line(
+			rid,
+			center,
+			center + (line.normal() * LINE_NORMAL_SIZE),
+			color
+		)
 
 
 ## Handles basic drawing of an arbitrary [DoomSector].
@@ -53,18 +72,16 @@ func draw_map_sector(sector: DoomSector, color: Color = Color.WHITE) -> void:
 
 	color.a *= 0.5
 
-	for poly: DoomSectorGeometryCache.Polygon in sector.geometry_cache.polygons:
-		# overcomplicated, but it's so that we can cache the
-		# triangulation process instead of requiring the
-		# drawer to do this
-		for t: int in range(0, poly.triangles.size(), 3):
-			var tri_polygon := PackedVector2Array([
-				poly.points[poly.triangles[t]],
-				poly.points[poly.triangles[t + 1]],
-				poly.points[poly.triangles[t + 2]]
-			])
-			# TODO: move to RenderingServer.canvas_item_add_triangle_array()
-			draw_colored_polygon(tri_polygon, color)
+	for poly in sector.geometry_cache.polygons:
+		if poly.triangles.is_empty():
+			continue
+
+		RenderingServer.canvas_item_add_triangle_array(
+			rid,
+			poly.triangles,
+			poly.points,
+			[color]
+		)
 
 
 ## Handles basic drawing of an arbitrary [DoomThing].
@@ -74,4 +91,8 @@ func draw_map_thing(thing: DoomThing, color: Color = Color.WHITE, dashed: bool =
 	var rect := Rect2(thing.position - size, size * 2.0)
 	if dashed:
 		color.a *= DASHED_TRANSPARENT
-	draw_rect(rect, color, false)
+	RenderingServer.canvas_item_add_rect(
+		rid,
+		rect,
+		color
+	)
