@@ -5,7 +5,7 @@ extends Control
 
 
 @onready var _view_2d: MapView2D = %MapView2D
-
+@onready var _tools: Control = %Tools
 
 ## Emits when grid settings are changed for this map.
 signal grid_changed()
@@ -25,21 +25,6 @@ var selection := MapSelection.new(self)
 
 ## Our drag state.
 var drag := MapDrag.new(self)
-
-
-## The distinct modes of editing, each representing
-## a type of [DoomEntity] that can be selected.
-enum EditMode
-{
-	VERTICES,
-	LINES,
-	SECTORS,
-	THINGS
-}
-
-
-## The currently selected editing mode.
-var mode: EditMode = EditMode.VERTICES
 
 
 ## This tab's editing grid size.
@@ -101,25 +86,28 @@ func _unhandled_input(ev: InputEvent) -> void:
 				grid_size *= 2.0
 
 
+func _on_mode_change() -> void:
+	pass # TODO: make only relevant tools visible
+
+
+func _ready_buttons() -> void:
+	var first_mode: SelectionModeButton = null
+	var modes_group: ButtonGroup = ButtonGroup.new()
+
+	for tool: Control in _tools.get_children():
+		var mode_button := tool as SelectionModeButton
+		if mode_button:
+			mode_button.button_group = modes_group
+			mode_button.ask_mode_change.connect(selection.change_mode)
+
+			if not first_mode:
+				first_mode = mode_button
+
+	assert(first_mode)
+	first_mode.set_pressed(true)
+
+
 func _ready() -> void:
 	_view_2d.container = self
-
-
-func _on_vertices_button_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		mode = EditMode.VERTICES
-
-
-func _on_lines_button_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		mode = EditMode.LINES
-
-
-func _on_sectors_button_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		mode = EditMode.SECTORS
-
-
-func _on_things_button_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		mode = EditMode.THINGS
+	selection.mode_changed.connect(_on_mode_change)
+	_ready_buttons()
