@@ -1,8 +1,11 @@
 [gd_scene format=3 uid="uid://ddxpivoo2gx2g"]
 
 [ext_resource type="Script" uid="uid://qr1gr3o7isto" path="res://map_container.gd" id="1_wl3j5"]
-[ext_resource type="PackedScene" uid="uid://dn421ocvyev8y" path="res://selection_mode_button.tscn" id="2_4ogah"]
+[ext_resource type="PackedScene" uid="uid://dn421ocvyev8y" path="res://map_selection_mode_button.tscn" id="2_4ogah"]
 [ext_resource type="PackedScene" uid="uid://dylwuko5yjdd1" path="res://map_view_2d.tscn" id="2_4rnhj"]
+[ext_resource type="PackedScene" uid="uid://dl8o3phgnti74" path="res://map_tool_button.tscn" id="3_aomui"]
+[ext_resource type="Script" uid="uid://bk85nof4jlgrp" path="res://map_tool_select.gd" id="4_nxspw"]
+[ext_resource type="Script" uid="uid://dvbc3iwnnwpt" path="res://map_tool_draw_lines.gd" id="5_nxspw"]
 
 [node name="MapContainer" type="Control" unique_id=1355333996]
 layout_mode = 3
@@ -30,24 +33,38 @@ layout_mode = 2
 [node name="Vertices" parent="VBoxContainer/Tools" unique_id=1643065469 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Vertices"
+type = 1
 
 [node name="Lines" parent="VBoxContainer/Tools" unique_id=1534957381 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Lines"
-type = 1
+type = 2
 
 [node name="Sectors" parent="VBoxContainer/Tools" unique_id=1429498805 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Sectors"
-type = 2
+type = 3
 
 [node name="Things" parent="VBoxContainer/Tools" unique_id=285767450 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Things"
-type = 3
+type = 4
 
-[node name="VSeparator" type="VSeparator" parent="VBoxContainer/Tools" unique_id=473213137]
+[node name="ModeSeparator" type="VSeparator" parent="VBoxContainer/Tools" unique_id=473213137]
 layout_mode = 2
+
+[node name="Select" parent="VBoxContainer/Tools" unique_id=1400017059 instance=ExtResource("3_aomui")]
+layout_mode = 2
+text = "Select"
+script = ExtResource("4_nxspw")
+
+[node name="ToolSeparator" type="VSeparator" parent="VBoxContainer/Tools" unique_id=679181578]
+layout_mode = 2
+
+[node name="DrawLines" parent="VBoxContainer/Tools" unique_id=23269083 instance=ExtResource("3_aomui")]
+layout_mode = 2
+text = "Draw"
+script = ExtResource("5_nxspw")
 
 [node name="MapView2D" parent="VBoxContainer" unique_id=1654353195 instance=ExtResource("2_4rnhj")]
 unique_name_in_owner = true
