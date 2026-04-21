@@ -3,6 +3,10 @@ extends RefCounted
 ## Manages selection state for a [MapContainer].
 
 
+## Emits when the current mode has been changed.
+signal mode_changed(type: Mode)
+
+
 ## Different ways of updating the selection state.
 ## Used for [method update].
 enum Modifiers
@@ -14,8 +18,22 @@ enum Modifiers
 }
 
 
+## Each type of [DoomEntity] that can be selected.
+enum Mode
+{
+	VERTICES,
+	LINES,
+	SECTORS,
+	THINGS
+}
+
+
 ## Pointer to the [MapContainer] that this selection applies to.
 var container: MapContainer = null
+
+
+## The currently selected editing mode.
+var mode: Mode = Mode.VERTICES
 
 
 ## All [DoomEntity] references that are considered selected.
@@ -25,6 +43,15 @@ var entities: Array[DoomEntity] = []
 func _init(p_container: MapContainer) -> void:
 	container = p_container
 
+
+## Changes the current value of [member mode] and
+## handles all maintainence needed.
+func change_mode(p_mode: Mode) -> void:
+	if mode == p_mode:
+		return
+
+	mode = p_mode
+	mode_changed.emit(mode)
 
 ## Returns if our selection is empty or not.
 func empty() -> bool:

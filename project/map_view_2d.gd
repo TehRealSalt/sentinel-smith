@@ -116,14 +116,14 @@ func _gui_marquee(ev: InputEvent) -> void:
 			rect.grow(threshold)
 
 			var hits: Array[DoomEntity] = []
-			match container.mode:
-				container.EditMode.VERTICES:
+			match container.selection.mode:
+				MapSelection.Mode.VERTICES:
 					hits.append_array(container.map.pick_vertices_in_rect(rect))
-				container.EditMode.LINES:
+				MapSelection.Mode.LINES:
 					hits.append_array(container.map.pick_lines_in_rect(rect))
-				container.EditMode.SECTORS:
+				MapSelection.Mode.SECTORS:
 					hits.append_array(container.map.pick_sectors_in_rect(rect))
-				container.EditMode.THINGS:
+				MapSelection.Mode.THINGS:
 					hits.append_array(container.map.pick_things_in_rect(rect))
 
 			var mod: MapSelection.Modifiers = MapSelection.Modifiers.REPLACE
@@ -160,14 +160,14 @@ func _gui_pick(ev: InputEvent) -> void:
 		var world_pos: Vector2 = transform.affine_inverse() * mb.position
 		if mb.pressed:
 			var hit: DoomEntity = null
-			match container.mode:
-				container.EditMode.VERTICES:
+			match container.selection.mode:
+				MapSelection.Mode.VERTICES:
 					hit = container.map.pick_vertex(world_pos, threshold_sqr)
-				container.EditMode.LINES:
+				MapSelection.Mode.LINES:
 					hit = container.map.pick_line(world_pos, threshold_sqr)
-				container.EditMode.SECTORS:
+				MapSelection.Mode.SECTORS:
 					hit = container.map.pick_sector(world_pos)
-				container.EditMode.THINGS:
+				MapSelection.Mode.THINGS:
 					hit = container.map.pick_thing(world_pos, threshold_sqr)
 
 			var mod: MapSelection.Modifiers = MapSelection.Modifiers.REPLACE
