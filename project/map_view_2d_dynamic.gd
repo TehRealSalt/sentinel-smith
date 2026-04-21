@@ -63,9 +63,6 @@ func _draw() -> void:
 		_draw_vertices(whitelist)
 		_draw_things(whitelist)
 
-	if view and view.marquee_active:
-		var rect := Rect2(view.marquee_start, view.marquee_end - view.marquee_start).abs()
-		draw_rect(rect, Color.ORANGE, false)
-		var center_col: Color = Color.ORANGE
-		center_col.a = 0.2
-		draw_rect(rect, center_col, true)
+	var tool: MapTool = container.get_tool()
+	if tool:
+		tool.draw_2d(self)

@@ -15,6 +15,18 @@ signal grid_changed()
 var map: DoomMap = null
 
 
+## The [ButtonGroup] for ALL mode buttons.
+var mode_group: ButtonGroup = ButtonGroup.new()
+
+
+## The [ButtonGroup] for ALL tool buttons.
+var tool_group: ButtonGroup = ButtonGroup.new()
+
+
+## The [MapTool] to default to when changing modes.
+var default_tool: MapTool = null
+
+
 ## Our undo/redo state.
 var undo_redo := UndoRedo.new()
 
@@ -46,6 +58,12 @@ var grid_visible: bool = true:
 	set(v):
 		grid_visible = v
 		grid_changed.emit()
+
+
+## Gets the currently selected tool.
+func get_tool() -> MapTool:
+	var btn: Button = tool_group.get_pressed_button()
+	return btn as MapTool
 
 
 ## Returns a [Vector2] snapped to the grid.
@@ -86,25 +104,59 @@ func _unhandled_input(ev: InputEvent) -> void:
 				grid_size *= 2.0
 
 
-func _on_mode_change() -> void:
-	pass # TODO: make only relevant tools visible
+func _on_mode_change(mode: MapSelection.Mode) -> void:
+	for btn: Button in tool_group.get_buttons():
+		var tool := btn as MapTool
+		if tool.mode_filter != MapSelection.Mode.ANY:
+			tool.visible = (tool.mode_filter == mode)
+
+	var cur_tool: MapTool = get_tool()
+	if cur_tool:
+		if not cur_tool.visible:
+			default_tool.set_pressed(true)
+
+
+func _on_tool_change(tool: MapTool) -> void:
+	if tool.mode_filter != MapSelection.Mode.ANY:
+		# ensure correct mode
+		var mode_set: bool = false
+		for btn: Button in mode_group.get_buttons():
+			var mode_btn := btn as MapSelectionModeButton
+			if mode_btn.type == tool.mode_filter:
+				mode_btn.set_pressed(true)
+				mode_set = true
+				break
+		assert(mode_set)
 
 
 func _ready_buttons() -> void:
-	var first_mode: SelectionModeButton = null
-	var modes_group: ButtonGroup = ButtonGroup.new()
+	var default_mode: MapSelectionModeButton = null
+	default_tool = null
 
-	for tool: Control in _tools.get_children():
-		var mode_button := tool as SelectionModeButton
+	for tool_node: Node in _tools.get_children():
+		var mode_button := tool_node as MapSelectionModeButton
 		if mode_button:
-			mode_button.button_group = modes_group
+			mode_button.button_group = mode_group
 			mode_button.ask_mode_change.connect(selection.change_mode)
 
-			if not first_mode:
-				first_mode = mode_button
+			if not default_mode:
+				default_mode = mode_button
 
-	assert(first_mode)
-	first_mode.set_pressed(true)
+		var tool := tool_node as MapTool
+		if tool:
+			tool.container = self
+			tool.button_group = tool_group
+			tool.ask_tool_change.connect(_on_tool_change)
+
+			if not default_tool:
+				default_tool = tool
+
+	assert(default_mode)
+	default_mode.set_pressed(true)
+
+	assert(default_tool)
+	assert(default_tool.mode_filter == MapSelection.Mode.ANY)
+	default_tool.set_pressed(true)
 
 
 func _ready() -> void:

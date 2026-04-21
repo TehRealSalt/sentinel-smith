@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://dn421ocvyev8y"]
 
-[ext_resource type="Script" uid="uid://byruwa15tiyeg" path="res://selection_mode_button.gd" id="1_4vsjp"]
+[ext_resource type="Script" uid="uid://byruwa15tiyeg" path="res://map_selection_mode_button.gd" id="1_4vsjp"]
 
-[node name="SelectionMode" type="Button" unique_id=1534957381]
+[node name="MapSelectionMode" type="Button" unique_id=1534957381]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
