@@ -62,7 +62,7 @@ var grid_visible: bool = true:
 
 ## Gets the currently selected tool.
 func get_tool() -> MapTool:
-	var btn: Button = tool_group.get_pressed_button()
+	var btn: BaseButton = tool_group.get_pressed_button()
 	return btn as MapTool
 
 
@@ -72,11 +72,7 @@ func grid_snapped_vec(input: Vector2) -> Vector2:
 	if not grid_snap_enabled:
 		return input
 
-	return Vector2(
-		roundf(input.x / grid_size) * grid_size,
-		roundf(input.y / grid_size) * grid_size
-	)
-
+	return input.snappedf(grid_size)
 
 func _unhandled_input(ev: InputEvent) -> void:
 	var key := ev as InputEventKey
@@ -105,7 +101,7 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 
 func _on_mode_change(mode: MapSelection.Mode) -> void:
-	for btn: Button in tool_group.get_buttons():
+	for btn: BaseButton in tool_group.get_buttons():
 		var tool := btn as MapTool
 		if tool.mode_filter != MapSelection.Mode.ANY:
 			tool.visible = (tool.mode_filter == mode)
@@ -120,7 +116,7 @@ func _on_tool_change(tool: MapTool) -> void:
 	if tool.mode_filter != MapSelection.Mode.ANY:
 		# ensure correct mode
 		var mode_set: bool = false
-		for btn: Button in mode_group.get_buttons():
+		for btn: BaseButton in mode_group.get_buttons():
 			var mode_btn := btn as MapSelectionModeButton
 			if mode_btn.type == tool.mode_filter:
 				mode_btn.set_pressed(true)
