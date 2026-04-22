@@ -5,6 +5,12 @@ extends FileDialog
 signal map_opened(file_name: String, map: DoomMap)
 
 
+func _ready() -> void:
+	if OS.has_feature('editor'):
+		# Default to test files when ran from editor
+		current_dir = ProjectSettings.globalize_path("res://../test-files").simplify_path()
+
+
 func _on_file_selected(path: String) -> void:
 	Input.set_default_cursor_shape(Input.CURSOR_WAIT)
 
