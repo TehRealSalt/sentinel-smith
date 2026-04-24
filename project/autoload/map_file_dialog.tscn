@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d0goswnj7r63n"]
 
-[ext_resource type="Script" uid="uid://b5x33ojtax0kt" path="res://map_file_dialog.gd" id="1_btqv8"]
+[ext_resource type="Script" uid="uid://b5x33ojtax0kt" path="res://autoload/map_file_dialog.gd" id="1_btqv8"]
 
 [node name="MapFileDialog" type="FileDialog" unique_id=150767201]
 title = "Open a File"
