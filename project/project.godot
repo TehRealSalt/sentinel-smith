@@ -20,8 +20,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-PerfTiming="*res://perf_timing.gd"
-MapFileDialog="*res://map_file_dialog.tscn"
+PerfTiming="*res://autoload/perf_timing.gd"
+MapFileDialog="*res://autoload/map_file_dialog.tscn"
 
 [debug]
 

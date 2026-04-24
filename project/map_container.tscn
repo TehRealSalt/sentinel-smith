@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://dylwuko5yjdd1" path="res://map_view_2d.tscn" id="2_4rnhj"]
 [ext_resource type="PackedScene" uid="uid://dl8o3phgnti74" path="res://map_tool_button.tscn" id="3_aomui"]
 [ext_resource type="Script" uid="uid://bk85nof4jlgrp" path="res://map_tool_select.gd" id="4_nxspw"]
-[ext_resource type="Script" uid="uid://dvbc3iwnnwpt" path="res://map_tool_draw_lines.gd" id="5_nxspw"]
+[ext_resource type="Script" uid="uid://dvbc3iwnnwpt" path="res://map_tool_draw_freehand.gd" id="5_nxspw"]
 
 [node name="MapContainer" type="Control" unique_id=1355333996]
 layout_mode = 3
@@ -33,22 +33,21 @@ layout_mode = 2
 [node name="Vertices" parent="VBoxContainer/Tools" unique_id=1643065469 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Vertices"
-type = 1
 
 [node name="Lines" parent="VBoxContainer/Tools" unique_id=1534957381 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Lines"
-type = 2
+type = 1
 
 [node name="Sectors" parent="VBoxContainer/Tools" unique_id=1429498805 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Sectors"
-type = 3
+type = 2
 
 [node name="Things" parent="VBoxContainer/Tools" unique_id=285767450 instance=ExtResource("2_4ogah")]
 layout_mode = 2
 text = "Things"
-type = 4
+type = 3
 
 [node name="ModeSeparator" type="VSeparator" parent="VBoxContainer/Tools" unique_id=473213137]
 layout_mode = 2
@@ -61,9 +60,9 @@ script = ExtResource("4_nxspw")
 [node name="ToolSeparator" type="VSeparator" parent="VBoxContainer/Tools" unique_id=679181578]
 layout_mode = 2
 
-[node name="DrawLines" parent="VBoxContainer/Tools" unique_id=23269083 instance=ExtResource("3_aomui")]
+[node name="DrawFreehand" parent="VBoxContainer/Tools" unique_id=23269083 instance=ExtResource("3_aomui")]
 layout_mode = 2
-text = "Draw"
+text = "Freehand"
 script = ExtResource("5_nxspw")
 
 [node name="MapView2D" parent="VBoxContainer" unique_id=1654353195 instance=ExtResource("2_4rnhj")]

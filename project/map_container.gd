@@ -101,10 +101,12 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 
 func _on_mode_change(mode: MapSelection.Mode) -> void:
+	selection.change_mode(mode)
+
 	for btn: BaseButton in tool_group.get_buttons():
 		var tool := btn as MapTool
-		if tool.mode_filter != MapSelection.Mode.ANY:
-			tool.visible = (tool.mode_filter == mode)
+		var vis: bool = tool.supports_mode(mode)
+		tool.visible = vis
 
 	var cur_tool: MapTool = get_tool()
 	if cur_tool:
@@ -113,16 +115,22 @@ func _on_mode_change(mode: MapSelection.Mode) -> void:
 
 
 func _on_tool_change(tool: MapTool) -> void:
-	if tool.mode_filter != MapSelection.Mode.ANY:
-		# ensure correct mode
-		var mode_set: bool = false
-		for btn: BaseButton in mode_group.get_buttons():
-			var mode_btn := btn as MapSelectionModeButton
-			if mode_btn.type == tool.mode_filter:
-				mode_btn.set_pressed(true)
-				mode_set = true
-				break
-		assert(mode_set)
+	if tool.mode_filters.is_empty():
+		return
+
+	if tool.supports_mode(selection.mode):
+		# Nothing needs done
+		return
+
+	var mode_set: bool = false
+	for btn: BaseButton in mode_group.get_buttons():
+		var mode_btn := btn as MapSelectionModeButton
+		if tool.supports_mode(mode_btn.type):
+			mode_btn.set_pressed(true)
+			mode_set = true
+			break
+
+	assert(mode_set, 'Unable to resolve default mode')
 
 
 func _ready_buttons() -> void:
@@ -133,7 +141,7 @@ func _ready_buttons() -> void:
 		var mode_button := tool_node as MapSelectionModeButton
 		if mode_button:
 			mode_button.button_group = mode_group
-			mode_button.ask_mode_change.connect(selection.change_mode)
+			mode_button.ask_mode_change.connect(_on_mode_change)
 
 			if not default_mode:
 				default_mode = mode_button
@@ -147,11 +155,11 @@ func _ready_buttons() -> void:
 			if not default_tool:
 				default_tool = tool
 
-	assert(default_mode)
+	assert(default_mode, 'No default mode')
 	default_mode.set_pressed(true)
 
-	assert(default_tool)
-	assert(default_tool.mode_filter == MapSelection.Mode.ANY)
+	assert(default_tool, 'No default tool')
+	assert(default_tool.mode_filters.is_empty(), 'Default tool does not support all modes')
 	default_tool.set_pressed(true)
 
 

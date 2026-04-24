@@ -10,7 +10,17 @@ var container: MapContainer = null
 
 
 ## Which selection mode this tool is for.
-var mode_filter: MapSelection.Mode = MapSelection.Mode.ANY
+## Check this using [method supports_mode].
+var mode_filters: Array[MapSelection.Mode] = []
+
+
+## Returns if the tool supports a specific selection mode.
+func supports_mode(mode: MapSelection.Mode) -> bool:
+	if mode_filters.is_empty():
+		# Assume supporting all modes by default
+		return true
+
+	return mode_filters.has(mode)
 
 
 func _toggled(toggled_on: bool) -> void:

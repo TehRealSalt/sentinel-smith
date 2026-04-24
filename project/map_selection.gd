@@ -21,7 +21,6 @@ enum Modifiers
 ## Each type of [DoomEntity] that can be selected.
 enum Mode
 {
-	ANY,
 	VERTICES,
 	LINES,
 	SECTORS,
@@ -34,7 +33,7 @@ var container: MapContainer = null
 
 
 ## The currently selected editing mode.
-var mode: Mode = Mode.ANY
+var mode: Mode = Mode.VERTICES
 
 
 ## All [DoomEntity] references that are considered selected.
@@ -50,9 +49,6 @@ func _init(p_container: MapContainer) -> void:
 func change_mode(p_mode: Mode) -> void:
 	if mode == p_mode:
 		return
-
-	# special value intended only for tools
-	assert(p_mode != Mode.ANY)
 
 	mode = p_mode
 	mode_changed.emit(mode)

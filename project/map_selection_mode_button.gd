@@ -10,7 +10,3 @@ signal ask_mode_change(p_type: MapSelection.Mode)
 func _toggled(toggled_on: bool) -> void:
 	if toggled_on:
 		ask_mode_change.emit(type)
-
-
-func _ready() -> void:
-	assert(type != MapSelection.Mode.ANY)
