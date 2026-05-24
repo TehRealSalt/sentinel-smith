@@ -2,9 +2,9 @@
 
 "Sentinel Smith" is a modern map editor for [Doom](https://store.steampowered.com/app/2280/DOOM__DOOM_II/) and its derivatives, built in the [Godot Engine](https://godotengine.org/).
 
-This is designed with [Snap the Sentinel](https://store.steampowered.com/app/1739960/Snap_the_Sentinel/) in mind as the primary target. This would be the [Universal Doom Map Format](https://doomwiki.org/wiki/UDMF), with namespace ["zdoom"](https://github.com/ZDoom/gzdoom), and no assumptions made about the game's contents. However, support for any other Doom-based games are welcome, as long as they don't interfere with this target!
+This is designed with [Snap the Sentinel](https://store.steampowered.com/app/1739960/Snap_the_Sentinel/) in mind as the primary target. This would be the [Universal Doom Map Format](https://doomwiki.org/wiki/UDMF), with namespace ["zdoom"](https://github.com/UZDoom/UZDoom), and no assumptions made about the game's contents. However, support for any other Doom-based games are welcome, as long as they don't interfere with this target!
 
-This source code is licensed under the MIT License.
+This source code is licensed under GPLv2 or later. See LICENSE for more information.
 
 ## How to use
 
